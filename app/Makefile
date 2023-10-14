@@ -5,8 +5,16 @@ LOADER = gcc
 
 OPT = -g -DDEBUG
 
-compile: main.c
-	$(CCOMP) -o $(APP_NAME) main.c
+# LIBS
+libtimer.a: timer.o
+	ar rs lib/timer/libtimer.a lib/timer/timer.o
+
+timer.o: lib/timer/timer.c lib/timer/timer.h
+	$(CCOMP) -c lib/timer/timer.c -o lib/timer/timer.o
+
+# APP
+compile: main.c lib/timer/libtimer.a
+	$(CCOMP) -o $(APP_NAME) main.c -L./lib/timer/ -I./lib/timer/ -ltimer
 
 clean:
-	rm -f $(APP_NAME)
+	rm -f .o *.a ./lib/*/*.o ./lib/*/*.a $(APP_NAME)

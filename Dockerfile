@@ -5,5 +5,8 @@ LABEL authors="Jakub Wojtas, Piotr Ploszczyca"
 COPY ./app ./app
 WORKDIR ./app
 
+
+RUN ["make","-f","Makefile"]
 RUN ["make", "compile"]
 ENTRYPOINT ["./parallel_and_distributed_programming"]
+

@@ -1,16 +1,20 @@
 import os
 import sys
+from datetime import datetime
 from collections import defaultdict
 import matplotlib.pyplot as plt
 
 
-def create_results_folder():
-    if not os.path.exists('results'):
-        os.makedirs('results')
+def create_results_folder_with_readable_timestamp():
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    results_folder = f'results/{timestamp}'
+    if not os.path.exists(results_folder):
+        os.makedirs(results_folder)
+    return results_folder
 
 
-def save_logs_to_file(logs):
-    with open('results/logs.txt', 'w') as log_file:
+def save_logs_to_file(logs, results_folder):
+    with open(f'{results_folder}/logs.txt', 'w') as log_file:
         for log in logs:
             log_file.write(log + '\n')
 
@@ -27,7 +31,7 @@ def extract_data_from_logs(logs):
     return data
 
 
-def make_plot(data):
+def make_plot(data, results_folder):
     colors = {'TimeStandard': 'blue', 'TimeCPU': 'red', 'TimeClock': 'green'}
     for test_category in data:
         plt.figure(figsize=(10, 5))
@@ -49,19 +53,19 @@ def make_plot(data):
         plt.xticks([tick + bar_width for tick in x_ticks], x_labels)
         plt.legend()
 
-        file_name = f"results/{test_category.replace(' ', '_')}_plot.png"
+        file_name = f"{results_folder}/{test_category.replace(' ', '_')}_plot.png"
         plt.savefig(file_name)
         plt.close()
 
 
 def main():
-    create_results_folder()
+    results_folder = create_results_folder_with_readable_timestamp()
 
     logs = [line.strip() for line in sys.stdin]
-    save_logs_to_file(logs)
+    save_logs_to_file(logs, results_folder)
 
     data = extract_data_from_logs(logs)
-    make_plot(data)
+    make_plot(data, results_folder)
 
 
 if __name__ == "__main__":

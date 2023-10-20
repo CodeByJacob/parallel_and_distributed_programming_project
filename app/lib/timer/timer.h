@@ -11,13 +11,17 @@ typedef struct TimerData {
     struct rusage rp;
     struct timeval tp;
     struct timezone tzp;
+    char* testCategory;
+    char* testName;
 } TimerData;
 
-TimerData init_time();
+TimerData init_time(char* testCategory, char* testName);
 
-double timeCPUInSecond(TimerData *timerData);
+double getTimeCPUInSecond(TimerData *timerData);
 
-double timeClockInSecond(TimerData *timerData);
+double getTimeClockInSecond(TimerData *timerData);
+
+double getStdTimeInSeconds(TimerData *timerData);
 
 void printTime(TimerData *timerData);
 

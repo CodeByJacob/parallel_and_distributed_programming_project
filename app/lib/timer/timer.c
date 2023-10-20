@@ -8,20 +8,23 @@
 /*---------------------------------------------------------
  init_time - init timer
 ---------------------------------------------------------*/
-TimerData init_time() {
+TimerData init_time(char* testCategory, char* testName) {
     TimerData timerData;
 
     timerData.ct = clock();
     getrusage(RUSAGE_SELF, &timerData.rp);
     gettimeofday(&timerData.tp, &timerData.tzp);
 
+    timerData.testCategory = testCategory;
+    timerData.testName = testName;
+
     return timerData;
 }
 
 /*---------------------------------------------------------
- timeClockInSecond - return clock time in seconds since time init
+ getTimeClockInSecond - return clock time in seconds since time init
 ---------------------------------------------------------*/
-double timeClockInSecond(TimerData *timerData) {
+double getTimeClockInSecond(TimerData *timerData) {
 
     struct timeval tk;
     struct timezone tzp;
@@ -35,9 +38,9 @@ double timeClockInSecond(TimerData *timerData) {
 }
 
 /*---------------------------------------------------------
- timeCPUInSecond - return CPU time in seconds since time init
+ getTimeCPUInSecond - return CPU time in seconds since time init
  ---------------------------------------------------------*/
-double timeCPUInSecond(TimerData *timerData) {
+double getTimeCPUInSecond(TimerData *timerData) {
 
     struct rusage rk;
     double cputime;
@@ -51,25 +54,23 @@ double timeCPUInSecond(TimerData *timerData) {
 }
 
 /*---------------------------------------------------------
+ getStdTimeInSeconds - return CPU time in seconds since time init
+ ---------------------------------------------------------*/
+double getStdTimeInSeconds(TimerData *timerData) {
+    clock_t time = clock();
+
+    return (double) (time - timerData->ct) / (double) CLOCKS_PER_SEC;
+}
+
+/*---------------------------------------------------------
  printTime - print CPU and clock time in seconds since time init
  ---------------------------------------------------------*/
 void printTime(TimerData *timerData) {
-
-    clock_t time;
-    struct rusage rk;
-    struct timeval tk;
     double stdtime, cputime, daytime;
 
-    time = clock();
-    getrusage(RUSAGE_SELF, &rk);
-    gettimeofday(&tk, &timerData->tzp);
-
-    stdtime = (double) (time - timerData->ct) / (double) CLOCKS_PER_SEC;
-
-    cputime = (rk.ru_utime.tv_usec - timerData->rp.ru_utime.tv_usec) / 1.0e6;
-    cputime += rk.ru_utime.tv_sec - timerData->rp.ru_utime.tv_sec;
-
-    daytime = (tk.tv_usec - timerData->tp.tv_usec) / 1.0e6 + tk.tv_sec - timerData->tp.tv_sec;
+    stdtime = getStdTimeInSeconds(timerData);
+    cputime = getTimeCPUInSecond(timerData);
+    daytime = getTimeClockInSecond(timerData);
 
     printf("standard = %lf\n", stdtime);
     printf("CPU      = %lf\n", cputime);

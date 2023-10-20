@@ -6,7 +6,7 @@ LOADER = gcc
 OPT = -g -DDEBUG
 
 # LIBS
-libtimer.a: timer.o
+lib/timer/libtimer.a: timer.o
 	ar rs lib/timer/libtimer.a lib/timer/timer.o
 
 timer.o: lib/timer/timer.c lib/timer/timer.h

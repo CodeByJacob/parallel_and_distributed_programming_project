@@ -3,7 +3,7 @@
 #include "lib/timer/timer.h"
 
 void arithmetic_operation() {
-    TimerData timerData = init_time();
+    TimerData timerData = init_time("Test Category", "Test Name");
     int suma = 0;
 
     for (int i = 1; i <= 100; i++) {

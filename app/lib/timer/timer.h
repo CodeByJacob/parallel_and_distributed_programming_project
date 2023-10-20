@@ -17,11 +17,11 @@ typedef struct TimerData {
 
 TimerData init_time(char* testCategory, char* testName);
 
-double getTimeCPUInSecond(TimerData *timerData);
+double calculateTimeCPUInSecond(TimerData *timerData);
 
-double getTimeClockInSecond(TimerData *timerData);
+double calculateTimeClockInSecond(TimerData *timerData);
 
-double getStdTimeInSeconds(TimerData *timerData);
+double calculateStdTimeInSeconds(TimerData *timerData);
 
 void printTime(TimerData *timerData);
 

@@ -1,79 +1,79 @@
 #include "timer.h"
-#include<stdio.h>
-#include<time.h>
-#include<sys/time.h>
-#include<sys/resource.h>
-
+#include <stdio.h>
+#include <sys/resource.h>
+#include <sys/time.h>
+#include <time.h>
 
 /*---------------------------------------------------------
  init_time - init timer
 ---------------------------------------------------------*/
-TimerData init_time(char* testCategory, char* testName) {
-    TimerData timerData;
+TimerData init_time(char *testCategory, char *testName) {
+  TimerData timerData;
 
-    timerData.ct = clock();
-    getrusage(RUSAGE_SELF, &timerData.rp);
-    gettimeofday(&timerData.tp, &timerData.tzp);
+  timerData.ct = clock();
+  getrusage(RUSAGE_SELF, &timerData.rp);
+  gettimeofday(&timerData.tp, &timerData.tzp);
 
-    timerData.testCategory = testCategory;
-    timerData.testName = testName;
+  timerData.testCategory = testCategory;
+  timerData.testName = testName;
 
-    return timerData;
+  return timerData;
 }
 
 /*---------------------------------------------------------
- getTimeClockInSecond - return clock time in seconds since time init
+ calculateTimeClockInSecond - return clock time in seconds since time init
 ---------------------------------------------------------*/
-double getTimeClockInSecond(TimerData *timerData) {
+double calculateTimeClockInSecond(TimerData *timerData) {
 
-    struct timeval tk;
-    struct timezone tzp;
-    double daytime;
+  struct timeval tk;
+  struct timezone tzp;
+  double daytime;
 
-    gettimeofday(&tk, &tzp);
+  gettimeofday(&tk, &tzp);
 
-    daytime = (tk.tv_usec - timerData->tp.tv_usec) / 1e6 + tk.tv_sec - timerData->tp.tv_sec;
+  daytime = (tk.tv_usec - timerData->tp.tv_usec) / 1e6 + tk.tv_sec -
+            timerData->tp.tv_sec;
 
-    return (daytime);
+  return (daytime);
 }
 
 /*---------------------------------------------------------
- getTimeCPUInSecond - return CPU time in seconds since time init
+ calculateTimeCPUInSecond - return CPU time in seconds since time init
  ---------------------------------------------------------*/
-double getTimeCPUInSecond(TimerData *timerData) {
+double calculateTimeCPUInSecond(TimerData *timerData) {
 
-    struct rusage rk;
-    double cputime;
+  struct rusage rk;
+  double cputime;
 
-    getrusage(RUSAGE_SELF, &rk);
+  getrusage(RUSAGE_SELF, &rk);
 
-    cputime = (rk.ru_utime.tv_usec - timerData->rp.ru_utime.tv_usec) / 1e6;
-    cputime += rk.ru_utime.tv_sec - timerData->rp.ru_utime.tv_sec;
+  cputime = (rk.ru_utime.tv_usec - timerData->rp.ru_utime.tv_usec) / 1e6;
+  cputime += rk.ru_utime.tv_sec - timerData->rp.ru_utime.tv_sec;
 
-    return (cputime);
+  return (cputime);
 }
 
 /*---------------------------------------------------------
- getStdTimeInSeconds - return CPU time in seconds since time init
+ calculateStdTimeInSeconds - return CPU time in seconds since time init
  ---------------------------------------------------------*/
-double getStdTimeInSeconds(TimerData *timerData) {
-    clock_t time = clock();
+double calculateStdTimeInSeconds(TimerData *timerData) {
+  clock_t time = clock();
 
-    return (double) (time - timerData->ct) / (double) CLOCKS_PER_SEC;
+  return (double)(time - timerData->ct) / (double)CLOCKS_PER_SEC;
 }
 
 /*---------------------------------------------------------
  printTime - print CPU and clock time in seconds since time init
  ---------------------------------------------------------*/
 void printTime(TimerData *timerData) {
-    double stdtime, cputime, daytime;
+  double stdTime, cpuTime, clockTime;
 
-    stdtime = getStdTimeInSeconds(timerData);
-    cputime = getTimeCPUInSecond(timerData);
-    daytime = getTimeClockInSecond(timerData);
+  stdTime = calculateStdTimeInSeconds(timerData);
+  cpuTime = calculateTimeCPUInSecond(timerData);
+  clockTime = calculateTimeClockInSecond(timerData);
 
-    printf("standard = %lf\n", stdtime);
-    printf("CPU      = %lf\n", cputime);
-    printf("clock    = %lf\n", daytime);
-
+  printf("TestCategory:%s|TestName:%s|TimeStandard:%lf|TimeCPU:%lf|TimeClock:%"
+         "lf\n",
+         timerData->testCategory, timerData->testName, stdTime, cpuTime,
+         clockTime);
 }

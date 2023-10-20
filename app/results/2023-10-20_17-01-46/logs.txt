@@ -1,6 +1,0 @@
-TestCategory:Arythmetic test|TestName:LoopSize=100|TimeStandard:0.000013|TimeCPU:0.000013|TimeClock:0.000002
-TestCategory:Arythmetic test|TestName:LoopSize=1000|TimeStandard:0.000003|TimeCPU:0.000003|TimeClock:0.000002
-TestCategory:Arythmetic test|TestName:LoopSize=10000|TimeStandard:0.000021|TimeCPU:0.000021|TimeClock:0.000021
-TestCategory:Another Arythmetic test|TestName:LoopSize=100|TimeStandard:0.000001|TimeCPU:0.000001|TimeClock:0.000001
-TestCategory:Another Arythmetic test|TestName:LoopSize=1000|TimeStandard:0.000003|TimeCPU:0.000003|TimeClock:0.000002
-TestCategory:Another Arythmetic test|TestName:LoopSize=10000|TimeStandard:0.000022|TimeCPU:0.000023|TimeClock:0.000023

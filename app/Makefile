@@ -16,5 +16,8 @@ timer.o: lib/timer/timer.c lib/timer/timer.h
 compile: main.c lib/timer/libtimer.a
 	$(CCOMP) -o $(APP_NAME) main.c -L./lib/timer/ -I./lib/timer/ -ltimer
 
+run_and_make_plots: compile
+	./$(APP_NAME) | python3 makePlot.py
+
 clean:
 	rm -f .o *.a ./lib/*/*.o ./lib/*/*.a $(APP_NAME)

@@ -1,6 +1,5 @@
 #include <string.h>
 #include <assert.h>
-#include <stdint-gcc.h>
 #include <stdio.h>
 
 #include "aes/aes_common.h"

@@ -7,6 +7,5 @@ WORKDIR ./app
 
 
 RUN ["make","-f","Makefile"]
-RUN ["make", "compile"]
-ENTRYPOINT ["./parallel_and_distributed_programming"]
+ENTRYPOINT ["make", "run_all"]
 

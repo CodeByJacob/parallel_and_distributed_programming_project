@@ -30,6 +30,8 @@ compile_mpi: main.c aes/aes_mpi.c lib/timer/libtimer.a
 compile_hybrid: main.c aes/aes_hybrid.c lib/timer/libtimer.a
 	$(MPICOMP) -o $(APP_NAME_HYBRID) -fopenmp main.c aes/aes_hybrid.c -L./lib/timer/ -I./lib/timer/ -ltimer
 
+compile_all: compile_sequential compile_openmp compile_mpi compile_hybrid
+
 # APP RUN
 run_sequential: compile_sequential
 	./$(APP_NAME_SEQUENTIAL) Sequential_Test
@@ -43,15 +45,18 @@ run_mpi: compile_mpi
 run_hybrid: compile_hybrid
 	./$(APP_NAME_HYBRID) Hybrid_Test
 
-run_all: run_sequential run_openmp run_mpi run_hybrid
+run_all: compile_all
 	./$(APP_NAME_SEQUENTIAL) Sequential_Test && \
     	 ./$(APP_NAME_OPENMP) OpenMP_Test && \
     	 ./$(APP_NAME_MPI) MPI_Test && \
     	 ./$(APP_NAME_HYBRID) Hybrid_Test
 
-run_and_make_plots: run_sequential run_openmp run_mpi run_hybrid
+run_and_make_plots:
 	$(MAKE) run_all | python3 makePlot.py
 
 # CLEAN
 clean:
-	rm -f .o *.a ./lib/*/*.o ./lib/*/*.a $(APP_NAME)
+	rm -f .o *.a ./lib/*/*.o ./lib/*/*.a $(APP_NAME)*
+
+clean_results:
+	rm -fr results

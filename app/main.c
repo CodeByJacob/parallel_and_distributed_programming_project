@@ -57,6 +57,7 @@ void test_aes_sequential(char *test_category, uint8_t *original_block, uint8_t *
     assert(memcmp(original_block, decrypted_block, size) == 0);
 }
 
+// TODO: Repair, it's not working
 void init_test_names(size_t size, char *encrypt_test_name, char *decrypt_test_name) {
     snprintf(encrypt_test_name, sizeof(encrypt_test_name), "Encrypt size: %zu", size);
     snprintf(decrypt_test_name, sizeof(decrypt_test_name), "Decrypt size: %zu", size);

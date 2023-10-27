@@ -5,9 +5,11 @@
 #include "aes/aes_common.h"
 #include "lib/timer/timer.h"
 
+static const int TEST_NAME_SIZE = 50;
+
 void test_aes_sequential(char *test_category, uint8_t *original_block, uint8_t *key, size_t size);
 
-void init_test_names(size_t size, char *encrypt_test_name, char *decrypt_test_name);
+void init_test_names(size_t size, char *encrypt_test_name, size_t encrypt_size, char *decrypt_test_name, size_t decrypt_size);
 
 struct {
     uint8_t *original_block;
@@ -38,9 +40,9 @@ int main(int argc, char *argv[]) {
 void test_aes_sequential(char *test_category, uint8_t *original_block, uint8_t *key, size_t size) {
     uint8_t encrypted_block[size];
     uint8_t decrypted_block[size];
-    char encrypt_test_name[50], decrypt_test_name[50];
+    char encrypt_test_name[TEST_NAME_SIZE], decrypt_test_name[TEST_NAME_SIZE];
 
-    init_test_names(size, encrypt_test_name, decrypt_test_name);
+    init_test_names(size, encrypt_test_name, TEST_NAME_SIZE, decrypt_test_name, TEST_NAME_SIZE);
 
     memcpy(encrypted_block, original_block, size);
 
@@ -57,9 +59,9 @@ void test_aes_sequential(char *test_category, uint8_t *original_block, uint8_t *
     assert(memcmp(original_block, decrypted_block, size) == 0);
 }
 
-// TODO: Repair, it's not working
-void init_test_names(size_t size, char *encrypt_test_name, char *decrypt_test_name) {
-    snprintf(encrypt_test_name, sizeof(encrypt_test_name), "Encrypt size: %zu", size);
-    snprintf(decrypt_test_name, sizeof(decrypt_test_name), "Decrypt size: %zu", size);
+void init_test_names(size_t size, char *encrypt_test_name, size_t encrypt_size, char *decrypt_test_name, size_t decrypt_size) {
+    snprintf(encrypt_test_name, encrypt_size, "Encrypt size=%zu", size);
+    snprintf(decrypt_test_name, decrypt_size, "Decrypt size=%zu", size);
 }
+
 

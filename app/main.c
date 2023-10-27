@@ -16,7 +16,9 @@ struct {
     uint8_t *key;
     size_t size;
 } tests[] = {
-        {"Mock block", "Mock key", 11}
+        {"Mock block", "Mock key", 11},
+        {"Mock block123", "Mock key", 14},
+        {"Mock block123456", "Mock key", 17}
 };
 
 int main(int argc, char *argv[]) {

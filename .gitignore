@@ -3,6 +3,6 @@ cmake-build-debug
 *.o
 *.a
 .DS_Store
-app/parallel_and_distributed_programming
+app/parallel_and_distributed_programming*
 app/results
 app/venv

@@ -58,14 +58,44 @@ def make_plot(data, results_folder):
         plt.close()
 
 
+def make_combined_plot(data, results_folder):
+    time_types = ["TimeStandard", "TimeCPU", "TimeClock"]
+
+    for time_type in time_types:
+        plt.figure(figsize=(20, 10))  # Increase the figure size
+        plt.title(f"All Scenarios Combined for {time_type}", fontsize=16)
+        plt.xlabel("Test Category - Test Name", fontsize=14)
+        plt.ylabel(f"{time_type} (seconds)", fontsize=14)
+
+        bar_width = 0.6
+        labels = []
+        times = []
+
+        for test_category, test_names in data.items():
+            for test_name in test_names:
+                label = f"{test_category} - {test_name}"
+                labels.append(label)
+                times.append(data[test_category][test_name].get(time_type, 0))
+
+        x_ticks = range(len(labels))
+        plt.bar(x_ticks, times, width=bar_width, alpha=0.7)
+        plt.xticks(x_ticks, labels, rotation=45, ha="right", fontsize=12)  # Adjust the font size and rotation
+
+        file_name = f"{results_folder}/All_Scenarios_Combined_for_{time_type}.png"
+        plt.tight_layout()  # Adjust the layout so everything fits
+        plt.savefig(file_name, dpi=300)  # Increase the DPI for higher resolution
+        plt.close()
+
+
 def main():
     results_folder = create_results_folder_with_readable_timestamp()
 
-    logs = [line.strip() for line in sys.stdin]
+    logs = [line.strip() for line in sys.stdin if line.startswith("TestCategory:")]
     save_logs_to_file(logs, results_folder)
 
     data = extract_data_from_logs(logs)
     make_plot(data, results_folder)
+    make_combined_plot(data, results_folder)
 
 
 if __name__ == "__main__":

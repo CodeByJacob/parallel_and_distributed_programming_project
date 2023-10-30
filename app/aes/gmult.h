@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-uint8_t generalized_multiplication(uint8_t a, uint8_t b);
+uint8_t generalized_multiplication(uint8_t multiplicand, uint8_t multiplier);
 
 #endif //PROJECT_GMULT_H

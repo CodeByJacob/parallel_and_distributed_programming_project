@@ -40,7 +40,7 @@ run_openmp: compile_openmp
 	./$(APP_NAME_OPENMP) OpenMP_Test
 
 run_mpi: compile_mpi
-	mpirun -np 5 ./$(APP_NAME_MPI) MPI_Test
+	mpirun ./$(APP_NAME_MPI) MPI_Test
 
 run_hybrid: compile_hybrid
 	./$(APP_NAME_HYBRID) Hybrid_Test

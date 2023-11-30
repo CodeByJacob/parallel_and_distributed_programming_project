@@ -9,6 +9,8 @@
 #define AES192 1
 #define AES256 0
 
+#define AES_NUM_OF_COLUMNS 4
+
 #if defined(AES256) && (AES256 == 1)
     #define AES_KEYWORDS  8
     #define AES_NUM_OF_ROUNDS 14
@@ -19,8 +21,6 @@
     #define AES_KEYWORDS  4
     #define AES_NUM_OF_ROUNDS 10
 #endif
-
-#define AES_NUM_OF_COLUMNS 4
 
 //uint8_t getSBoxValue(uint8_t value);
 //uint8_t getInvSBoxValue(uint8_t value);
@@ -33,31 +33,7 @@ void coef_multiplication(uint8_t *a, uint8_t *b, uint8_t *result);
 
 uint8_t *getRoundConstant(uint8_t roundNumber);
 
-void addRoundKey(uint8_t *state, uint8_t *roundKeyMatrix, uint8_t roundNumber);
-
-void mixColumns(uint8_t *state);
-
-void invMixColumns(uint8_t *state);
-
-void shiftRows(uint8_t *state);
-
-void invShiftRows(uint8_t *state);
-
-void subBytes(uint8_t *state);
-
-void invSubBytes(uint8_t *state);
-
-void subWord(uint8_t *word);
-
-void rotWord(uint8_t *word);
-
-void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey);
-
 uint8_t *initializeAES();
-
-void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
-
-void aesDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
 
 static uint8_t sBox[256] = {
         0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,

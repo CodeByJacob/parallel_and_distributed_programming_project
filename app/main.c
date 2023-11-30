@@ -69,6 +69,7 @@
 //
 //
 #include "aes/aes_common.h"
+#include "aes/aes_sequential.h"
 
 int main() {
 

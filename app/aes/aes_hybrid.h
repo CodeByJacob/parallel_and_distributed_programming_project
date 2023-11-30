@@ -17,10 +17,6 @@ void subBytes(uint8_t *state);
 
 void invSubBytes(uint8_t *state);
 
-void subWord(uint8_t *word);
-
-void rotWord(uint8_t *word);
-
 void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey);
 
 void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);

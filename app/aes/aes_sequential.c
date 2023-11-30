@@ -98,7 +98,6 @@ void subBytes(uint8_t *state) {
 
     for (uint8_t row = 0; row < 4; row++) {
         for (uint8_t col = 0; col < AES_NUM_OF_COLUMNS; col++) {
-//            state[numColumns * row + col] = getSBoxValue(state[numColumns * row + col]);
             state[AES_NUM_OF_COLUMNS * row + col] = sBox[state[AES_NUM_OF_COLUMNS * row + col]];
         }
     }
@@ -108,29 +107,9 @@ void invSubBytes(uint8_t *state) {
 
     for (uint8_t row = 0; row < 4; row++) {
         for (uint8_t col= 0; col < AES_NUM_OF_COLUMNS; col++) {
-//            state[numColumns*row+col] = getInvSBoxValue(state[numColumns*row+col]);
             state[AES_NUM_OF_COLUMNS*row+col] = invSBox[state[AES_NUM_OF_COLUMNS*row+col]];
         }
     }
-}
-
-void subWord(uint8_t *word) {
-
-    for (uint8_t i = 0; i < 4; i++) {
-//        word[i] = getSBoxValue(word[i]);
-        word[i] = sBox[word[i]];
-    }
-}
-
-void rotWord(uint8_t *word) {
-
-    uint8_t tmp = word[0];
-
-    for (uint8_t i = 0; i < 3; i++) {
-        word[i] = word[i + 1];
-    }
-
-    word[3] = tmp;
 }
 
 void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey) {

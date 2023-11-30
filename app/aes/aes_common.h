@@ -5,6 +5,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define AES128 0
+#define AES192 1
+#define AES256 0
+
+#if defined(AES256) && (AES256 == 1)
+#define numKeyWords  8
+    #define numRounds 14
+    #define keySize 32
+#elif defined(AES192) && (AES192 == 1)
+#define numKeyWords  6
+    #define numRounds 12
+    #define keySize 24
+#else
+    #define numKeyWords  4
+    #define numRounds 10
+    #define keySize 16
+#endif
+
+#define numColumns 4
+
 //uint8_t getSBoxValue(uint8_t value);
 //uint8_t getInvSBoxValue(uint8_t value);
 
@@ -36,7 +56,8 @@ void rotWord(uint8_t *word);
 
 void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey);
 
-uint8_t *initializeAES(size_t keySize);
+//uint8_t *initializeAES(size_t keySize);
+uint8_t *initializeAES();
 
 void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
 

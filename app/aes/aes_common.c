@@ -46,12 +46,6 @@ void coef_multiplication(uint8_t *a, uint8_t *b, uint8_t *result) {
     result[3] = gmult(a[3], b[0]) ^ gmult(a[2], b[1]) ^ gmult(a[1], b[2]) ^ gmult(a[0], b[3]);
 }
 
-int cipherKey;
-
-int numColumns = 4; // Number of columns (32-bit words) comprising the State
-int numKeyWords;   // Number of 32-bit words comprising the Cipher Key
-int numRounds;     // Number of rounds, a function of numKeyWords and numColumns
-
 uint8_t *getRoundConstant(uint8_t roundNumber) {
     if (roundNumber == 1) {
         roundConstants[0] = 0x01;
@@ -79,7 +73,7 @@ void addRoundKey(uint8_t *state, uint8_t *roundKeyMatrix, uint8_t roundNumber) {
 
 void mixColumns(uint8_t *state) {
 
-    uint8_t mixMatrix[] = {0x02, 0x01, 0x01, 0x03}; // MixColumns matrix
+    uint8_t mixMatrix[] = {0x02, 0x01, 0x01, 0x03};
     uint8_t row, column, inputColumn[4], resultColumn[4];
 
     for (column = 0; column < numColumns; column++) {
@@ -119,7 +113,7 @@ void shiftRows(uint8_t *state) {
     uint8_t row, shiftAmount, col, tmp;
 
     for (row = 1; row < 4; row++) {
-        shiftAmount = row;  // shift(1,4)=1; shift(2,4)=2; shift(3,4)=3
+        shiftAmount = row;
 
         for (col = 0; col < numColumns; col++) {
             tmp = state[numColumns * row + 0];
@@ -131,7 +125,7 @@ void shiftRows(uint8_t *state) {
             state[numColumns * row + numColumns - 1] = tmp;
             shiftAmount--;
             if (shiftAmount == 0) {
-                break;  // No need to shift further
+                break;
             }
         }
     }
@@ -205,7 +199,6 @@ void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey) {
     uint8_t tempWord[4];
     uint8_t length = numColumns * (numRounds + 1);
 
-    // Copy the original key to the first part of the expanded key
     for (uint8_t i = 0; i < numKeyWords; i++) {
         expandedKey[4 * i + 0] = originalKey[4 * i + 0];
         expandedKey[4 * i + 1] = originalKey[4 * i + 1];
@@ -213,7 +206,6 @@ void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey) {
         expandedKey[4 * i + 3] = originalKey[4 * i + 3];
     }
 
-    // Generate the remaining part of the expanded key
     for (uint8_t i = numKeyWords; i < length; i++) {
         tempWord[0] = expandedKey[4 * (i - 1) + 0];
         tempWord[1] = expandedKey[4 * (i - 1) + 1];
@@ -235,14 +227,7 @@ void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey) {
     }
 }
 
-uint8_t *initializeAES(size_t keySize) {
-    switch (keySize) {
-        default:
-        case 16: numKeyWords = 4; numRounds = 10; break;
-        case 24: numKeyWords = 6; numRounds = 12; break;
-        case 32: numKeyWords = 8; numRounds = 14; break;
-    }
-
+uint8_t *initializeAES() {
     return malloc(numColumns * (numRounds + 1) * 4);
 }
 
@@ -251,17 +236,14 @@ void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
     uint8_t state[4 * numColumns];
     uint8_t round, i, j;
 
-    // Copy input block to the state array
     for (i = 0; i < 4; i++) {
         for (j = 0; j < numColumns; j++) {
             state[numColumns * i + j] = inputBlock[i + 4 * j];
         }
     }
 
-    // Initial round key addition
     addRoundKey(state, roundKeys, 0);
 
-    // Main rounds
     for (round = 1; round < numRounds; round++) {
         subBytes(state);
         shiftRows(state);
@@ -269,12 +251,10 @@ void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
         addRoundKey(state, roundKeys, round);
     }
 
-    // Final round
     subBytes(state);
     shiftRows(state);
     addRoundKey(state, roundKeys, numRounds);
 
-    // Copy the state array to the output block
     for (i = 0; i < 4; i++) {
         for (j = 0; j < numColumns; j++) {
             outputBlock[i + 4 * j] = state[numColumns * i + j];
@@ -287,17 +267,14 @@ void aesDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
     uint8_t state[4 * numColumns];
     uint8_t round, i, j;
 
-    // Copy input block to the state array
     for (i = 0; i < 4; i++) {
         for (j = 0; j < numColumns; j++) {
             state[numColumns * i + j] = inputBlock[i + 4 * j];
         }
     }
 
-    // Initial round key addition
     addRoundKey(state, roundKeys, numRounds);
 
-    // Main rounds in reverse order
     for (round = numRounds - 1; round >= 1; round--) {
         invShiftRows(state);
         invSubBytes(state);
@@ -305,12 +282,10 @@ void aesDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
         invMixColumns(state);
     }
 
-    // Final round
     invShiftRows(state);
     invSubBytes(state);
     addRoundKey(state, roundKeys, 0);
 
-    // Copy the state array to the output block
     for (i = 0; i < 4; i++) {
         for (j = 0; j < numColumns; j++) {
             outputBlock[i + 4 * j] = state[numColumns * i + j];

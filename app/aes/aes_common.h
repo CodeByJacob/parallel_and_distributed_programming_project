@@ -10,20 +10,17 @@
 #define AES256 0
 
 #if defined(AES256) && (AES256 == 1)
-#define numKeyWords  8
-    #define numRounds 14
-    #define keySize 32
+    #define AES_KEYWORDS  8
+    #define AES_NUM_OF_ROUNDS 14
 #elif defined(AES192) && (AES192 == 1)
-#define numKeyWords  6
-    #define numRounds 12
-    #define keySize 24
+    #define AES_KEYWORDS  6
+    #define AES_NUM_OF_ROUNDS 12
 #else
-    #define numKeyWords  4
-    #define numRounds 10
-    #define keySize 16
+    #define AES_KEYWORDS  4
+    #define AES_NUM_OF_ROUNDS 10
 #endif
 
-#define numColumns 4
+#define AES_NUM_OF_COLUMNS 4
 
 //uint8_t getSBoxValue(uint8_t value);
 //uint8_t getInvSBoxValue(uint8_t value);
@@ -56,7 +53,6 @@ void rotWord(uint8_t *word);
 
 void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey);
 
-//uint8_t *initializeAES(size_t keySize);
 uint8_t *initializeAES();
 
 void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);

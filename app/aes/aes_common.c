@@ -1,14 +1,5 @@
 #include "aes_common.h"
 
-
-uint8_t gadd(uint8_t a, uint8_t b) {
-    return a ^ b;
-}
-
-uint8_t gsub(uint8_t a, uint8_t b) {
-    return a ^ b;
-}
-
 //uint8_t getSBoxValue(uint8_t value) {
 //    return sBox[value / 16][value % 16];
 //}

@@ -5,10 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-uint8_t gadd(uint8_t a, uint8_t b);
-
-uint8_t gsub(uint8_t a, uint8_t b);
-
 //uint8_t getSBoxValue(uint8_t value);
 //uint8_t getInvSBoxValue(uint8_t value);
 

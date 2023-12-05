@@ -4,19 +4,21 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 
 #define AES128 0
-#define AES192 0
-#define AES256 1
+#define AES192 1
+#define AES256 0
 
 #define AES_NUM_OF_COLUMNS 4
 
 #if defined(AES256) && (AES256 == 1)
-    #define AES_KEYWORDS  8
-    #define AES_NUM_OF_ROUNDS 14
-    #define AES_KEYSIZE 32
+#define AES_KEYWORDS  8
+#define AES_NUM_OF_ROUNDS 14
+#define AES_KEYSIZE 32
 #elif defined(AES192) && (AES192 == 1)
-    #define AES_KEYWORDS  6
+#define AES_KEYWORDS  6
     #define AES_NUM_OF_ROUNDS 12
     #define AES_KEYSIZE 24
 #else

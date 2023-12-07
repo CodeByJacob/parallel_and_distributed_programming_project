@@ -18,6 +18,11 @@ double calculateTimeClockInSecond(TimerData *timerData) {
 
 // Print the timing information for MPI code
 void printTime(TimerData *timerData) {
-    double elapsed = calculateTimeClockInSecond(timerData);
-    printf("TestCategory:%s|TestName:%s|ClockTime:%lf\n", timerData->testCategory, timerData->testName, elapsed);
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    if(rank == 0) {
+        double elapsed = calculateTimeClockInSecond(timerData);
+        printf("TestCategory:%s|TestName:%s|ClockTime:%lf\n", timerData->testCategory, timerData->testName, elapsed);
+    }
 }

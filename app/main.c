@@ -67,13 +67,9 @@ void test_aes_sequential(char *test_category, uint8_t *original_block, uint8_t *
     keyExpansion(key, expandedKey);
     printTime(&keyExpansion_td);
 
-    memcpy(encrypted_block, original_block, size);
-
     TimerData encrypt_td = init_time(test_category, encrypt_test_name);
     aesEncrypt(original_block /* in */, encrypted_block /* out */, expandedKey /* expanded key */);
     printTime(&encrypt_td);
-
-    memcpy(decrypted_block, encrypted_block, size);
 
     TimerData decrypt_td = init_time(test_category, decrypt_test_name);
     aesDecrypt(encrypted_block, decrypted_block, expandedKey);

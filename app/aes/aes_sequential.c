@@ -206,3 +206,11 @@ void aesDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
         }
     }
 }
+
+void initAES(int argc, char *argv[]) {
+    // Left empty intentionally
+}
+
+void finalizeAES() {
+    // Left empty intentionally
+}

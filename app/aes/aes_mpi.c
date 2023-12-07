@@ -3,6 +3,14 @@
 
 #define BLOCK_SIZE 16
 
+void initAES(int argc, char *argv[]) {
+    MPI_Init(&argc, &argv);
+}
+
+void finalizeAES() {
+    MPI_Finalize();
+}
+
 void aesEncrypt(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);

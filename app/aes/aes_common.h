@@ -27,6 +27,14 @@
     #define AES_KEYSIZE 16
 #endif
 
+void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
+
+void aesDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
+
+void initAES(int argc, char *argv[]);
+
+void finalizeAES();
+
 uint8_t gmult(uint8_t a, uint8_t b);
 
 void coef_addition(uint8_t a[], uint8_t b[], uint8_t result[]);

@@ -23,4 +23,8 @@ void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
 
 void aesDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
 
+void initAES(int argc, char *argv[]);
+
+void finalizeAES();
+
 #endif //PARALLEL_AND_DISTRIBUTED_PROGRAMMING_PROJECT_AES_SEQUENTIAL_H

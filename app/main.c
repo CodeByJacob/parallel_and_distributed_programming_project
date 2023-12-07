@@ -5,7 +5,6 @@
 #include "lib/timer/timer.h"
 
 #include "aes/aes_common.h"
-#include "aes/aes_sequential.h"
 
 static const int TEST_NAME_SIZE = 50;
 
@@ -37,6 +36,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    initAES(argc, argv);
+
     char *test_category = argv[1];
 
     uint8_t tests_size = sizeof(tests)/sizeof(tests[0]);
@@ -44,6 +45,8 @@ int main(int argc, char *argv[]) {
     for(uint8_t i = 0; i < tests_size; i++) {
         test_aes_sequential(test_category, tests[i].original_block, tests[i].key, AES_KEYSIZE);
     }
+
+    finalizeAES();
 
     return 0;
 }

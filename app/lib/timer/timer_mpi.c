@@ -1,24 +1,22 @@
 #include <stdio.h>
-#include <sys/time.h>
+#include <mpi.h>
 #include "timer.h"
 
+// Initialize the timer for MPI code
 TimerData init_time(char* testCategory, char* testName) {
     TimerData timerData;
-    struct timeval startTime;
-    gettimeofday(&startTime, NULL);
-    timerData.clockTime = (double)startTime.tv_sec + (double)startTime.tv_usec / 1e6;
+    timerData.clockTime = MPI_Wtime();
     timerData.testCategory = testCategory;
     timerData.testName = testName;
     return timerData;
 }
 
+// Calculate elapsed clock time in seconds for MPI code
 double calculateTimeClockInSecond(TimerData *timerData) {
-    struct timeval endTime;
-    gettimeofday(&endTime, NULL);
-    double endTimeInSeconds = (double)endTime.tv_sec + (double)endTime.tv_usec / 1e6;
-    return endTimeInSeconds - timerData->clockTime;
+    return MPI_Wtime() - timerData->clockTime;
 }
 
+// Print the timing information for MPI code
 void printTime(TimerData *timerData) {
     double elapsed = calculateTimeClockInSecond(timerData);
     printf("TestCategory:%s|TestName:%s|ClockTime:%lf\n", timerData->testCategory, timerData->testName, elapsed);

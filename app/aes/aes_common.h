@@ -20,7 +20,7 @@
 #elif defined(AES192) && (AES192 == 1)
 #define AES_KEYWORDS  6
     #define AES_NUM_OF_ROUNDS 12
-    #define AES_KEYSIZE 24
+    #define AES_KEYSIZE 64
 #else
     #define AES_KEYWORDS  4
     #define AES_NUM_OF_ROUNDS 10

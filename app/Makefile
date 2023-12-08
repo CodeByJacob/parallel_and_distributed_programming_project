@@ -19,16 +19,16 @@ timer.o: lib/timer/timer.c lib/timer/timer.h
 
 # APP COMPILE
 compile_sequential: main.c aes/aes_sequential.c lib/timer/libtimer.a
-	$(CCOMP) -o $(APP_NAME_SEQUENTIAL) main.c aes/aes_sequential.c -L./lib/timer/ -I./lib/timer/ -ltimer
+	$(CCOMP) -o $(APP_NAME_SEQUENTIAL) main.c aes/aes_common.c aes/aes_sequential.c -L./lib/timer/ -I./lib/timer/ -ltimer
 
 compile_openmp: main.c aes/aes_openmp.c lib/timer/libtimer.a
-	$(CCOMP) -o $(APP_NAME_OPENMP) -fopenmp main.c aes/aes_openmp.c -L./lib/timer/ -I./lib/timer/ -ltimer
+	$(CCOMP) -o $(APP_NAME_OPENMP) -fopenmp main.c aes/aes_common.c aes/aes_openmp.c -L./lib/timer/ -I./lib/timer/ -ltimer
 
 compile_mpi: main.c aes/aes_mpi.c lib/timer/libtimer.a
-	$(MPICOMP) -o $(APP_NAME_MPI) main.c aes/aes_mpi.c -L./lib/timer/ -I./lib/timer/ -ltimer
+	$(MPICOMP) -o $(APP_NAME_MPI) main.c aes/aes_common.c aes/aes_mpi.c -L./lib/timer/ -I./lib/timer/ -ltimer
 
 compile_hybrid: main.c aes/aes_hybrid.c lib/timer/libtimer.a
-	$(MPICOMP) -o $(APP_NAME_HYBRID) -fopenmp main.c aes/aes_hybrid.c -L./lib/timer/ -I./lib/timer/ -ltimer
+	$(MPICOMP) -o $(APP_NAME_HYBRID) -fopenmp main.c aes/aes_common.c aes/aes_hybrid.c -L./lib/timer/ -I./lib/timer/ -ltimer
 
 compile_all: compile_sequential compile_openmp compile_mpi compile_hybrid
 

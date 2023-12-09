@@ -67,8 +67,10 @@ uint8_t *getRoundConstant(uint8_t roundNumber) {
     return roundConstants;
 }
 
-uint8_t *initializeAES() {
-    return malloc(AES_NUM_OF_COLUMNS * (AES_NUM_OF_ROUNDS + 1) * 4);
+uint8_t *initializeAES(size_t blockSize) {
+    uint8_t numberOfColumns = blockSize / 4;
+
+    return malloc(numberOfColumns * (AES_NUM_OF_ROUNDS + 1) * 4);
 }
 
 void printUint8Array(const uint8_t *array, size_t size) {

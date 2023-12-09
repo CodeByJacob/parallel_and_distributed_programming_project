@@ -7,7 +7,7 @@ void initAES(int argc, char *argv[]);
 
 void finalizeAES();
 
-void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey);
+void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey, size_t blockSize);
 
 void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys, size_t blockSize);
 

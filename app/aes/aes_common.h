@@ -11,9 +11,6 @@
 #define AES192 1
 #define AES256 0
 
-// TODO: Adjust calculating this value to AES_NUM_OF_COLUMNS = dataSize / 4
-#define AES_NUM_OF_COLUMNS 4
-
 #if defined(AES256) && (AES256 == 1)
 #define AES_KEYWORDS  8
 #define AES_NUM_OF_ROUNDS 14

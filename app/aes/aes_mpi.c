@@ -1,8 +1,6 @@
 #include "aes_mpi.h"
 #include <mpi.h>
 
-#define BLOCK_SIZE 16
-
 void initAES(int argc, char *argv[]) {
     MPI_Init(&argc, &argv);
 }
@@ -218,32 +216,36 @@ void aesSequentialDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *ro
     }
 }
 
-void aesEncrypt(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, size_t blockSize) {
+void aesEncrypt(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, size_t dataSize) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    uint8_t localInputBlock[BLOCK_SIZE];
-    uint8_t localOutputBlock[BLOCK_SIZE];
+    size_t blockSize = dataSize / size;
 
-    MPI_Scatter(inputData, BLOCK_SIZE, MPI_UINT8_T, localInputBlock, BLOCK_SIZE, MPI_UINT8_T, 0, MPI_COMM_WORLD);
+    uint8_t localInputBlock[blockSize];
+    uint8_t localOutputBlock[blockSize];
+
+    MPI_Scatter(inputData, blockSize, MPI_UINT8_T, localInputBlock, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
 
     aesSequentialEncrypt(localInputBlock, localOutputBlock, roundKeys);
 
-    MPI_Gather(localOutputBlock, BLOCK_SIZE, MPI_UINT8_T, outputData, BLOCK_SIZE, MPI_UINT8_T, 0, MPI_COMM_WORLD);
+    MPI_Gather(localOutputBlock, blockSize, MPI_UINT8_T, outputData, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
 }
 
-void aesDecrypt(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, size_t blockSize) {
+void aesDecrypt(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, size_t dataSize) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    uint8_t localInputBlock[BLOCK_SIZE];
-    uint8_t localOutputBlock[BLOCK_SIZE];
+    size_t blockSize = dataSize / size;
 
-    MPI_Scatter(inputData, BLOCK_SIZE, MPI_UINT8_T, localInputBlock, BLOCK_SIZE, MPI_UINT8_T, 0, MPI_COMM_WORLD);
+    uint8_t localInputBlock[blockSize];
+    uint8_t localOutputBlock[blockSize];
+
+    MPI_Scatter(inputData, blockSize, MPI_UINT8_T, localInputBlock, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
 
     aesSequentialDecrypt(localInputBlock, localOutputBlock, roundKeys);
 
-    MPI_Gather(localOutputBlock, BLOCK_SIZE, MPI_UINT8_T, outputData, BLOCK_SIZE, MPI_UINT8_T, 0, MPI_COMM_WORLD);
+    MPI_Gather(localOutputBlock, blockSize, MPI_UINT8_T, outputData, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
 }

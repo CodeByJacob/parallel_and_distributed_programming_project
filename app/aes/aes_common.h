@@ -32,7 +32,7 @@ void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys, s
 
 void aesDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys, size_t blockSize);
 
-void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey);
+void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey, size_t blockSize);
 
 void initAES(int argc, char *argv[]);
 
@@ -50,7 +50,7 @@ void rotWord(uint8_t *word);
 
 uint8_t *getRoundConstant(uint8_t roundNumber);
 
-uint8_t *initializeAES();
+uint8_t *initializeAES(size_t blockSize);
 
 void printUint8Array(const uint8_t *array, size_t size);
 

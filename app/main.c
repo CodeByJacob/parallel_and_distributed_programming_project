@@ -63,10 +63,10 @@ void test_aes(char *test_category, uint8_t *original_block, uint8_t *key, size_t
                     encrypt_test_name, TEST_NAME_SIZE,
                     decrypt_test_name, TEST_NAME_SIZE);
 
-    uint8_t *expandedKey = initializeAES();
+    uint8_t *expandedKey = initializeAES(size);
 
     TimerData keyExpansion_td = init_time(test_category, keyExpansion_test_name);
-    keyExpansion(key, expandedKey);
+    keyExpansion(key, expandedKey, size);
     printTime(&keyExpansion_td);
 
     memcpy(encrypted_block, original_block, size);

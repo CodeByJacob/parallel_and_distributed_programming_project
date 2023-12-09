@@ -216,6 +216,16 @@ void aesSequentialDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *ro
     }
 }
 
+void printUint8Array(const uint8_t *array, size_t size) {
+    for (size_t i = 0; i < size; i++) {
+        printf("%02x ", array[i]);
+        if ((i + 1) % 16 == 0) { // Optional: break the line every 16 bytes for readability
+            printf("\n");
+        }
+    }
+    printf("\n");
+}
+
 void aesEncrypt(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, size_t dataSize) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -231,6 +241,10 @@ void aesEncrypt(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, siz
     aesSequentialEncrypt(localInputBlock, localOutputBlock, roundKeys);
 
     MPI_Gather(localOutputBlock, blockSize, MPI_UINT8_T, outputData, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
+
+if (rank == 0) {
+        printUint8Array(inputData, dataSize);
+    }
 }
 
 void aesDecrypt(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, size_t dataSize) {
@@ -248,4 +262,8 @@ void aesDecrypt(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, siz
     aesSequentialDecrypt(localInputBlock, localOutputBlock, roundKeys);
 
     MPI_Gather(localOutputBlock, blockSize, MPI_UINT8_T, outputData, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
+
+    if (rank == 0) {
+        printUint8Array(outputData, dataSize);
+    }
 }

@@ -3,6 +3,7 @@ import sys
 from datetime import datetime
 from collections import defaultdict
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def create_results_folder_with_readable_timestamp():
@@ -30,21 +31,35 @@ def extract_data_from_logs(logs):
 
 def make_plot(data, results_folder):
     for test_name, categories in data.items():
-        plt.figure(figsize=(10, 5))
+        fig, ax = plt.subplots(figsize=(10, 5))
         plt.title(f'Test: {test_name}')
-        plt.xlabel("Category - Size")
-        plt.ylabel("Average Time (seconds)")
+        ax.set_xlabel("Category - Size", fontsize=12)
+        ax.set_ylabel("Average Time (seconds)", fontsize=12)
 
-        bar_width = 0.2
-        categories_sorted = sorted(categories.keys())
-        x_ticks = range(len(categories_sorted))
+        unique_sizes = set(size for _, size in categories.keys())
+        unique_categories = sorted(set(category for category, _ in categories.keys()))
+        bar_width = 0.15
+        x_base = range(len(unique_categories))
 
-        times = [sum(categories[cat])/len(categories[cat]) for cat in categories_sorted]  # Średni czas
-        labels = [f'{cat[0]}-{cat[1]}' for cat in categories_sorted]
+        colors = plt.cm.viridis(np.linspace(0, 1, len(unique_sizes)))
 
-        plt.bar(x_ticks, times, width=bar_width, alpha=0.7)
+        for i, size in enumerate(sorted(unique_sizes)):
+            times = [sum(categories[(category, size)])/len(categories[(category, size)]) if (category, size) in categories else 0 for category in unique_categories]
+            rects = ax.bar([x + i * bar_width for x in x_base], times, width=bar_width, label=f'Size {size}', color=colors[i])
 
-        plt.xticks(x_ticks, labels, rotation=45)
+            for rect in rects:
+                height = rect.get_height()
+                ax.annotate(f'{height:.2e}',
+                            xy=(rect.get_x() + rect.get_width() / 2, height),
+                            xytext=(0, 3),  # 3 points vertical offset
+                            textcoords="offset points",
+                            ha='center', va='bottom', fontsize=8)
+
+        ax.set_xticks([x + bar_width for x in x_base])
+        ax.set_xticklabels(unique_categories, rotation=45, ha="right", fontsize=10)
+
+        ax.legend(title="Size", fontsize='small', loc='upper left')
+
         plt.tight_layout()
 
         file_name = f"{results_folder}/{test_name.replace(' ', '_')}_plot.png"

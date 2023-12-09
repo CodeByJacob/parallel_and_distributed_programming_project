@@ -70,3 +70,13 @@ uint8_t *getRoundConstant(uint8_t roundNumber) {
 uint8_t *initializeAES() {
     return malloc(AES_NUM_OF_COLUMNS * (AES_NUM_OF_ROUNDS + 1) * 4);
 }
+
+void printUint8Array(const uint8_t *array, size_t size) {
+    for (size_t i = 0; i < size; i++) {
+        printf("%02x ", array[i]);
+        if ((i + 1) % 16 == 0) {
+            printf("\n");
+        }
+    }
+    printf("\n");
+}

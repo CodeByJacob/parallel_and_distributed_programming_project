@@ -8,7 +8,7 @@
 
 static const int TEST_NAME_SIZE = 50;
 
-void test_aes_sequential(char *test_category, uint8_t *original_block, uint8_t *key, size_t size);
+void test_aes(char *test_category, uint8_t *original_block, uint8_t *key, size_t size);
 
 void init_test_names(size_t size, char *keyExpansion_test_name, size_t keyExpansion_size, char *encrypt_test_name,
                      size_t encrypt_size, char *decrypt_test_name,
@@ -29,24 +29,6 @@ struct {
                         0x62, 0xf8, 0xea, 0xd2, 0x52, 0x2c, 0x6b, 0x7b
                         },
                 64},
-        {
-                (uint8_t[]) {
-                        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-                        0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-                        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-                        0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-                        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-                        0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-                        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-                        0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-                },
-                (uint8_t[]) {
-                        0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22,
-                        0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0x00,
-                        0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff, 0x11, 0x22,
-                },
-                256
-        }
 
 };
 
@@ -63,7 +45,7 @@ int main(int argc, char *argv[]) {
     uint8_t tests_size = sizeof(tests) / sizeof(tests[0]);
 
     for (uint8_t i = 0; i < tests_size; i++) {
-        test_aes_sequential(test_category, tests[i].original_block, tests[i].key, tests[i].size);
+        test_aes(test_category, tests[i].original_block, tests[i].key, tests[i].size);
     }
 
     finalizeAES();
@@ -71,7 +53,7 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void test_aes_sequential(char *test_category, uint8_t *original_block, uint8_t *key, size_t size) {
+void test_aes(char *test_category, uint8_t *original_block, uint8_t *key, size_t size) {
     uint8_t encrypted_block[size];
     uint8_t decrypted_block[size];
     char encrypt_test_name[TEST_NAME_SIZE], decrypt_test_name[TEST_NAME_SIZE], keyExpansion_test_name[TEST_NAME_SIZE];

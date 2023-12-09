@@ -11,6 +11,7 @@
 #define AES192 1
 #define AES256 0
 
+// TODO: Adjust calculating this value to AES_NUM_OF_COLUMNS = dataSize / 4
 #define AES_NUM_OF_COLUMNS 4
 
 #if defined(AES256) && (AES256 == 1)
@@ -18,9 +19,9 @@
 #define AES_NUM_OF_ROUNDS 14
 #define AES_KEYSIZE 32
 #elif defined(AES192) && (AES192 == 1)
-#define AES_KEYWORDS  6
+    #define AES_KEYWORDS  6
     #define AES_NUM_OF_ROUNDS 12
-    #define AES_KEYSIZE 64
+    #define AES_KEYSIZE 24
 #else
     #define AES_KEYWORDS  4
     #define AES_NUM_OF_ROUNDS 10
@@ -50,6 +51,8 @@ void rotWord(uint8_t *word);
 uint8_t *getRoundConstant(uint8_t roundNumber);
 
 uint8_t *initializeAES();
+
+void printUint8Array(const uint8_t *array, size_t size);
 
 static uint8_t sBox[256] = {
         0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,

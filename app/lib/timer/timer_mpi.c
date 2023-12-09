@@ -3,11 +3,12 @@
 #include "timer.h"
 
 // Initialize the timer for MPI code
-TimerData init_time(char* testCategory, char* testName) {
+TimerData init_time(char* testCategory, char* testName, int testSize) {
     TimerData timerData;
     timerData.clockTime = MPI_Wtime();
     timerData.testCategory = testCategory;
     timerData.testName = testName;
+    timerData.testSize = testSize;
     return timerData;
 }
 
@@ -23,6 +24,6 @@ void printTime(TimerData *timerData) {
 
     if(rank == 0) {
         double elapsed = calculateTimeClockInSecond(timerData);
-        printf("TestCategory:%s|TestName:%s|ClockTime:%lf\n", timerData->testCategory, timerData->testName, elapsed);
+        printf("TestCategory:%s|TestName:%s|Size:%d|ClockTime:%lf\n", timerData->testCategory, timerData->testName, timerData->testSize, elapsed);
     }
 }

@@ -19,9 +19,9 @@ void invSubBytes(uint8_t *state);
 
 void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey);
 
-void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
+void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys, size_t blockSize);
 
-void aesDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
+void aesDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys, size_t blockSize);
 
 void initAES(int argc, char *argv[]);
 

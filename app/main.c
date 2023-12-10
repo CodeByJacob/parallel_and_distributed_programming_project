@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 
     char *test_category = argv[1];
 
-    FileData dataTest1 = readFromFile("./files/test2.txt");
+    FileData dataTest1 = readFromFile("./files/test1.txt");
 
     char *key = generateRandomKey(AES_KEYSIZE * 8);
 
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
     ConvertedData msg = convertDataToUint8(dataTest1.content);
 
     printf("KEY: %s\n",key_hex.data);
-    printf("MSG: ");
+    printf("O_MSG: ");
     for (uint8_t i = 0; i < msg.size; i++) {
         printf("%c", msg.data[i]);
     }
@@ -76,19 +76,20 @@ int main(int argc, char *argv[]) {
 }
 
 void test_aes_sequential(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size) {
-    uint8_t *encrypted_block = malloc(((blocks / BLOCK_SIZE) + 1) * size);
-//    uint8_t *encrypted_block = malloc(blocks);
+    uint8_t *encrypted_block = malloc(blocks);
     uint8_t *decrypted_block = malloc(blocks);
 
     Block msg[(blocks/BLOCK_SIZE) + 1];
-    EncryptedBlock e_msg[(blocks/BLOCK_SIZE)];
-    DecryptedBlock d_msg[(blocks/BLOCK_SIZE)];
+    EncryptedBlock e_msg[(blocks/BLOCK_SIZE) + 1];
+    DecryptedBlock d_msg[(blocks/BLOCK_SIZE) + 1];
 
-    for (int i = 0; i < ((blocks / BLOCK_SIZE)); i++) {
+    for (int i = 0; i < ((blocks / BLOCK_SIZE) + 1); i++) {
         for (int j = 0; j < BLOCK_SIZE; j++) {
-            msg[i].data[j] = original_block[(i * 16) + j];
+            msg[i].data[j] = original_block[(i * BLOCK_SIZE) + j];
+            printf("%c[%02X] ", msg[i].data[j],msg[i].data[j]);
         }
     }
+    printf("\n");
 
     char encrypt_test_name[TEST_NAME_SIZE], decrypt_test_name[TEST_NAME_SIZE], keyExpansion_test_name[TEST_NAME_SIZE];
 
@@ -103,42 +104,55 @@ void test_aes_sequential(char *test_category, uint8_t *original_block, size_t bl
     keyExpansion(key, expandedKey);
     printTime(&keyExpansion_td);
 
-    memcpy(encrypted_block, original_block, size);
+//    memcpy(encrypted_block, original_block, size);
 
     TimerData encrypt_td = init_time(test_category, encrypt_test_name);
-    for(int i = 0; i < (int)(blocks/16) + 1 ; i++) {
+    for(int i = 0; i < ((blocks / BLOCK_SIZE) + 1) ; i++) {
         aesEncrypt(msg[i].data /* in */, e_msg[i].data /* out */, expandedKey /* expanded key */);
     }
-//    aesEncrypt(original_block /* in */, encrypted_block /* out */, expandedKey /* expanded key */);
-    printTime(&encrypt_td);
-//
+     printTime(&encrypt_td);
 
-    for(int i = 0; i < (int)(blocks/16) + 1 ; i++) {
-        for(int j =0; j < size; j++){
-            encrypted_block[(i*size) + j] = e_msg[i].data[j];
-            printf("%2X ", encrypted_block[(i*size) + j]);
+    for(int i = 0; i < ((blocks / BLOCK_SIZE) + 1) ; i++) {
+        for(int j =0; j < BLOCK_SIZE; j++){
+            encrypted_block[(i*BLOCK_SIZE) + j] = e_msg[i].data[j];
         }
-        printf("\n");
     }
 
-    memcpy(decrypted_block, encrypted_block, size);
+//    memcpy(decrypted_block, encrypted_block, size);
 
     TimerData decrypt_td = init_time(test_category, decrypt_test_name);
-    for(int i = 0; i < (int)(blocks/16); i++) {
+    for(int i = 0; i < ((blocks / BLOCK_SIZE) + 1) ; i++) {
         aesDecrypt(e_msg[i].data, d_msg[i].data, expandedKey);
     }
     printTime(&decrypt_td);
 
-    for(int i = 0; i < (int)(blocks/16) ; i++) {
-        for(int j =0; j < 16 ; j++){
+    for(int i = 0; i < ((blocks / BLOCK_SIZE) + 1) ; i++) {
+        for(int j =0; j < BLOCK_SIZE ; j++){
             decrypted_block[(i*size) + j] = d_msg[i].data[j];
-//            printf("%2X ", decrypted_block[(i*size) + j]);
+            printf("%c[%02X] ", decrypted_block[(i*size) + j],decrypted_block[(i*size) + j]);
+//            printf("%c", decrypted_block[(i*size) + j]);
+        }
+    }
+    printf("\n");
+
+    printf("D_MSG: ");
+    for(int i = 0; i < ((blocks / BLOCK_SIZE) + 1) ; i++) {
+        for(int j =0; j < BLOCK_SIZE ; j++){
             printf("%c", decrypted_block[(i*size) + j]);
         }
     }
-    printf("%s\n",decrypted_block);
+    printf("\n");
 
-//    assert(memcmp(original_block, decrypted_block, size) == 0);
+    int result = memcmp(original_block, decrypted_block, blocks);
+
+    // Check the result
+    if (result == 0) {
+        printf("Arrays are equal.\n");
+    } else {
+        printf("Arrays are not equal. The first differing byte is at position %d.\n", result);
+        printf("ob: %c |db: %c \n", original_block[result], decrypted_block[result]);
+    }
+//    assert(memcpy(original_block, decrypted_block, blocks));
 
     free(expandedKey);
 }

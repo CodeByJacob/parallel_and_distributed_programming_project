@@ -146,7 +146,6 @@ void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey) {
 }
 
 void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
-
     uint8_t state[4 * AES_NUM_OF_COLUMNS];
     uint8_t round, i, j;
 

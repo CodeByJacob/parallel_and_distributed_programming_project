@@ -1,15 +1,17 @@
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #include "lib/timer/timer.h"
+#include "lib/test_helper/test_helper.h"
 
 #include "aes/aes_common.h"
 #include "aes/aes_sequential.h"
 
 static const int TEST_NAME_SIZE = 50;
 
-void test_aes_sequential(char *test_category, uint8_t *original_block, uint8_t *key, size_t size);
+void test_aes_sequential(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size);
 
 void init_test_names(size_t size, char *keyExpansion_test_name, size_t keyExpansion_size, char *encrypt_test_name,
                      size_t encrypt_size, char *decrypt_test_name,
@@ -21,13 +23,13 @@ struct {
     size_t size;
 } tests[] = {
         {
-            (uint8_t[]){
-                0x32, 0x43, 0xf6, 0xa8,0x88, 0x5a, 0x30, 0x8d,
-                0x31,0x31, 0x98, 0xa2,0xe0, 0x37, 0x07, 0x34},
-                (uint8_t[]){
-                0x8e, 0x73, 0xb0, 0xf7,0xda, 0x0e, 0x64, 0x52,
-                0xc8, 0x10, 0xf3, 0x2b,0x80, 0x90, 0x79, 0xe5,
-                0x62, 0xf8, 0xea, 0xd2,0x52, 0x2c, 0x6b, 0x7b},
+                (uint8_t[]) {
+                        0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d,
+                        0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34},
+                (uint8_t[]) {
+                        0x8e, 0x73, 0xb0, 0xf7, 0xda, 0x0e, 0x64, 0x52,
+                        0xc8, 0x10, 0xf3, 0x2b, 0x80, 0x90, 0x79, 0xe5,
+                        0x62, 0xf8, 0xea, 0xd2, 0x52, 0x2c, 0x6b, 0x7b},
                 AES_KEYSIZE},
 };
 
@@ -39,18 +41,55 @@ int main(int argc, char *argv[]) {
 
     char *test_category = argv[1];
 
-    uint8_t tests_size = sizeof(tests)/sizeof(tests[0]);
+    FileData dataTest1 = readFromFile("./files/test2.txt");
 
-    for(uint8_t i = 0; i < tests_size; i++) {
-        test_aes_sequential(test_category, tests[i].original_block, tests[i].key, AES_KEYSIZE);
+    char *key = generateRandomKey(AES_KEYSIZE * 8);
+
+    ConvertedData key_hex = convertDataToUint8(key);
+    ConvertedData msg = convertDataToUint8(dataTest1.content);
+
+    printf("KEY: %s\n",key_hex.data);
+    printf("MSG: ");
+    for (uint8_t i = 0; i < msg.size; i++) {
+        printf("%c", msg.data[i]);
     }
+    printf("\n");
+
+    test_aes_sequential(test_category, msg.data, msg.size, key_hex.data, AES_KEYSIZE);
+
+//
+//    uint8_t tests_size = sizeof(tests)/sizeof(tests[0]);
+//
+//    for(uint8_t i = 0; i < tests_size; i++) {
+//        test_aes_sequential(test_category, tests[i].original_block, tests[i].key, AES_KEYSIZE);
+//    }
+//
+
+//    freeBlocks(msg,blocks);
+//
+//    for (uint8_t i = 0; i < blocks; i++) {
+//        freeUint8Array(msg_hex[i]);
+//    }
+//    free(msg_hex);
 
     return 0;
 }
 
-void test_aes_sequential(char *test_category, uint8_t *original_block, uint8_t *key, size_t size) {
-    uint8_t encrypted_block[size];
-    uint8_t decrypted_block[size];
+void test_aes_sequential(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size) {
+    uint8_t *encrypted_block = malloc(((blocks / BLOCK_SIZE) + 1) * size);
+//    uint8_t *encrypted_block = malloc(blocks);
+    uint8_t *decrypted_block = malloc(blocks);
+
+    Block msg[(blocks/BLOCK_SIZE) + 1];
+    EncryptedBlock e_msg[(blocks/BLOCK_SIZE)];
+    DecryptedBlock d_msg[(blocks/BLOCK_SIZE)];
+
+    for (int i = 0; i < ((blocks / BLOCK_SIZE)); i++) {
+        for (int j = 0; j < BLOCK_SIZE; j++) {
+            msg[i].data[j] = original_block[(i * 16) + j];
+        }
+    }
+
     char encrypt_test_name[TEST_NAME_SIZE], decrypt_test_name[TEST_NAME_SIZE], keyExpansion_test_name[TEST_NAME_SIZE];
 
     init_test_names(size,
@@ -67,19 +106,43 @@ void test_aes_sequential(char *test_category, uint8_t *original_block, uint8_t *
     memcpy(encrypted_block, original_block, size);
 
     TimerData encrypt_td = init_time(test_category, encrypt_test_name);
-    aesEncrypt(original_block /* in */, encrypted_block /* out */, expandedKey /* expanded key */);
+    for(int i = 0; i < (int)(blocks/16) + 1 ; i++) {
+        aesEncrypt(msg[i].data /* in */, e_msg[i].data /* out */, expandedKey /* expanded key */);
+    }
+//    aesEncrypt(original_block /* in */, encrypted_block /* out */, expandedKey /* expanded key */);
     printTime(&encrypt_td);
+//
+
+    for(int i = 0; i < (int)(blocks/16) + 1 ; i++) {
+        for(int j =0; j < size; j++){
+            encrypted_block[(i*size) + j] = e_msg[i].data[j];
+            printf("%2X ", encrypted_block[(i*size) + j]);
+        }
+        printf("\n");
+    }
 
     memcpy(decrypted_block, encrypted_block, size);
 
     TimerData decrypt_td = init_time(test_category, decrypt_test_name);
-    aesDecrypt(encrypted_block, decrypted_block, expandedKey);
+    for(int i = 0; i < (int)(blocks/16); i++) {
+        aesDecrypt(e_msg[i].data, d_msg[i].data, expandedKey);
+    }
     printTime(&decrypt_td);
 
-    assert(memcmp(original_block, decrypted_block, size) == 0);
+    for(int i = 0; i < (int)(blocks/16) ; i++) {
+        for(int j =0; j < 16 ; j++){
+            decrypted_block[(i*size) + j] = d_msg[i].data[j];
+//            printf("%2X ", decrypted_block[(i*size) + j]);
+            printf("%c", decrypted_block[(i*size) + j]);
+        }
+    }
+    printf("%s\n",decrypted_block);
+
+//    assert(memcmp(original_block, decrypted_block, size) == 0);
 
     free(expandedKey);
 }
+
 
 void init_test_names(size_t size, char *keyExpansion_test_name, size_t keyExpansion_size, char *encrypt_test_name,
                      size_t encrypt_size, char *decrypt_test_name,

@@ -17,21 +17,11 @@ void init_test_names(size_t size, char *keyExpansion_test_name, size_t keyExpans
                      size_t encrypt_size, char *decrypt_test_name,
                      size_t decrypt_size);
 
-//struct {
-//    uint8_t *original_block;
-//    uint8_t *key;
-//    size_t size;
-//} tests[] = {
-//        {
-//                (uint8_t[]) {
-//                        0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d,
-//                        0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34},
-//                (uint8_t[]) {
-//                        0x8e, 0x73, 0xb0, 0xf7, 0xda, 0x0e, 0x64, 0x52,
-//                        0xc8, 0x10, 0xf3, 0x2b, 0x80, 0x90, 0x79, 0xe5,
-//                        0x62, 0xf8, 0xea, 0xd2, 0x52, 0x2c, 0x6b, 0x7b},
-//                AES_KEYSIZE},
-//};
+TestCase tests[] = {
+        {"./files/extreme_test.txt","./files/key_256_2.txt"},
+        {"./files/test2.txt","./files/key_256_3.txt"},
+        {"./files/test5.txt","./files/key_256_1.txt"}
+};
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -41,13 +31,16 @@ int main(int argc, char *argv[]) {
 
     char *test_category = argv[1];
 
-    FileData dataTest1 = readFromFile("./files/extreme_test.txt");
-    FileData keyTest = readFromFile("./files/key_256_3.txt");
+    short testSize = sizeof(tests)/sizeof(TestCase);
+    for(uint8_t i = 0; i < testSize; i++) {
+        FileData msg = readFromFile(tests[i].msg_path);
+        FileData key = readFromFile(tests[i].key_path);
 
-    ConvertedData key_hex = convertDataToUint8(keyTest.content);
-    ConvertedData msg = convertDataToUint8(dataTest1.content);
+        ConvertedData key_hex = convertDataToUint8(key.content);
+        ConvertedData msg_hex = convertDataToUint8(msg.content);
 
-    test_aes_sequential(test_category, msg.data, msg.size, key_hex.data, AES_KEYSIZE);
+        test_aes_sequential(test_category, msg_hex.data, msg_hex.size, key_hex.data, AES_KEYSIZE);
+    }
 
     return 0;
 }
@@ -80,6 +73,8 @@ void test_aes_sequential(char *test_category, uint8_t *original_block, size_t bl
     assert(memcmp(original_block, decrypted_block, blocks) == 0);
 
     free(expandedKey);
+    free(encrypted_block);
+    free(decrypted_block);
 }
 
 void init_test_names(size_t size, char *keyExpansion_test_name, size_t keyExpansion_size, char *encrypt_test_name,

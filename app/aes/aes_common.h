@@ -8,8 +8,8 @@
 
 
 #define AES128 0
-#define AES192 1
-#define AES256 0
+#define AES192 0
+#define AES256 1
 
 #define AES_NUM_OF_COLUMNS 4
 #define BLOCK_SIZE 16

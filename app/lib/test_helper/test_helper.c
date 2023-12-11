@@ -1,59 +1,43 @@
 #include "test_helper.h"
 
-char **divideIntoBlocks(const char *input, size_t *blockCount) {
-    if (input == NULL || blockCount == NULL) {
-        *blockCount = 0;
-        return NULL;
-    }
 
-    size_t inputLength = strlen(input);
-    *blockCount = (inputLength + BLOCK_SIZE - 1) / BLOCK_SIZE;
-
-    char **blocks = (char **) calloc(*blockCount, sizeof(char *));
-    if (blocks == NULL) {
-        fprintf(stderr, "Memory allocation failed\n");
-        *blockCount = 0;
-        return NULL;
-    }
-
-    for (size_t i = 0; i < *blockCount; ++i) {
-        blocks[i] = (char *) calloc(BLOCK_SIZE + 1, sizeof(char));
-        if (blocks[i] == NULL) {
-            fprintf(stderr, "Memory allocation failed\n");
-            for (size_t j = 0; j < i; ++j) {
-                free(blocks[j]);
-            }
-            free(blocks);
-            *blockCount = 0;
-            return NULL;
-        }
-
-        size_t copyLength = (i + 1) * BLOCK_SIZE > inputLength ? inputLength % BLOCK_SIZE : BLOCK_SIZE;
-        memcpy(blocks[i], input + i * BLOCK_SIZE, copyLength);
-    }
-
-    return blocks;
-}
-
-//char *generateRandomKey(size_t keyLengthInBits) {
-//    srand((unsigned int) time(NULL));
+//FileData readFromFile(const char *filename) {
+//    FileData fileData;
+//    FILE *filePointer = fopen(filename, "r");
 //
-//    size_t keyLengthInBytes = (keyLengthInBits + 7) / 8;
+//    if (filePointer == NULL) {
+//        fprintf(stderr, "Error opening file\n");
+//        fileData.content = NULL;
+//        fileData.size = 0;
+//        return fileData;
+//    }
 //
-//    char *key = (char *) malloc((keyLengthInBytes + 1) * sizeof(char));
+//    fseek(filePointer, 0, SEEK_END);
+//    fileData.size = ftell(filePointer);
+//    fseek(filePointer, 0, SEEK_SET);
 //
-//    if (key == NULL) {
+//    fileData.content = (char *) malloc(fileData.size);
+//
+//    if (fileData.content == NULL) {
 //        fprintf(stderr, "Memory allocation failed\n");
-//        exit(EXIT_FAILURE);
+//        fclose(filePointer);
+//        fileData.size = 0;
+//        return fileData;
 //    }
 //
-//    for (size_t i = 0; i < keyLengthInBytes; ++i) {
-//        key[i] = rand() % 256;
+//    if (fread(fileData.content, 1, fileData.size, filePointer) != fileData.size) {
+//        fprintf(stderr, "Error reading file\n");
+//        free(fileData.content);
+//        fclose(filePointer);
+//        fileData.size = 0;
+//        return fileData;
 //    }
 //
-//    key[keyLengthInBytes] = '\0';
+////    fileData.content[fileData.size] = '\0';
 //
-//    return key;
+//    fclose(filePointer);
+//
+//    return fileData;
 //}
 
 void shuffle(char *array, size_t n) {
@@ -138,9 +122,8 @@ void freeBlocks(char **blocks, size_t blockCount) {
 
 FileData readFromFile(const char *filename) {
     FileData fileData;
-    FILE *filePointer = fopen(filename, "r");
+    FILE *filePointer = fopen(filename, "rb");  // Open in binary mode
 
-    fileData.path = filename;
     if (filePointer == NULL) {
         fprintf(stderr, "Error opening file\n");
         fileData.content = NULL;
@@ -152,8 +135,7 @@ FileData readFromFile(const char *filename) {
     fileData.size = ftell(filePointer);
     fseek(filePointer, 0, SEEK_SET);
 
-    fileData.content = (char *) malloc(fileData.size);
-//    fileData.content = (char *) malloc(fileData.size + 1);
+    fileData.content = (char *)malloc(fileData.size);
 
     if (fileData.content == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
@@ -169,8 +151,6 @@ FileData readFromFile(const char *filename) {
         fileData.size = 0;
         return fileData;
     }
-
-//    fileData.content[fileData.size] = '\0';
 
     fclose(filePointer);
 

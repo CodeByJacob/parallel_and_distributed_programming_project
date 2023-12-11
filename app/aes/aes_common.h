@@ -12,13 +12,14 @@
 #define AES256 0
 
 #define AES_NUM_OF_COLUMNS 4
+#define BLOCK_SIZE 16
 
 #if defined(AES256) && (AES256 == 1)
-#define AES_KEYWORDS  8
-#define AES_NUM_OF_ROUNDS 14
-#define AES_KEYSIZE 32 // 256b
+    #define AES_KEYWORDS  8
+    #define AES_NUM_OF_ROUNDS 14
+    #define AES_KEYSIZE 32 // 256b
 #elif defined(AES192) && (AES192 == 1)
-#define AES_KEYWORDS  6
+    #define AES_KEYWORDS  6
     #define AES_NUM_OF_ROUNDS 12
     #define AES_KEYSIZE 24 // 192b
 #else
@@ -26,6 +27,15 @@
     #define AES_NUM_OF_ROUNDS 10
     #define AES_KEYSIZE 16 // 128b
 #endif
+
+typedef struct {
+    size_t size;
+    uint8_t data[BLOCK_SIZE];
+} Block;
+
+typedef struct {
+    uint8_t data[AES_KEYSIZE];
+} CipherBlock;
 
 uint8_t gmult(uint8_t a, uint8_t b);
 
@@ -79,6 +89,6 @@ static uint8_t invSBox[256] = {
         0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d
 };
 
-static uint8_t roundConstants[] = {0x01, 0x02, 0x04, 0x08};
+static uint8_t roundConstants[] = {0x01, 0x02, 0x00, 0x00};
 
 #endif //PARALLEL_AND_DISTRIBUTED_PROGRAMMING_PROJECT_AES_COMMON_H

@@ -1,0 +1,4 @@
+76BWTJHIbOR0cK3t
+TestCategory:seq|TestName:KeyExpansion size=24|TimeStandard:0.000706|TimeCPU:0.000181|TimeClock:0.002384
+TestCategory:seq|TestName:Encrypt size=24|TimeStandard:0.002979|TimeCPU:0.002978|TimeClock:0.002989
+TestCategory:seq|TestName:Decrypt size=24|TimeStandard:0.002814|TimeCPU:0.002813|TimeClock:0.002816

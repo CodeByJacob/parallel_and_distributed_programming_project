@@ -145,7 +145,7 @@ void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey) {
     }
 }
 
-void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
+void aesEncryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
     uint8_t state[4 * AES_NUM_OF_COLUMNS];
     uint8_t round, i, j;
 
@@ -175,7 +175,7 @@ void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
     }
 }
 
-void aesDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
+void aesDecryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
 
     uint8_t state[4 * AES_NUM_OF_COLUMNS];
     uint8_t round, i, j;
@@ -202,6 +202,40 @@ void aesDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
     for (i = 0; i < 4; i++) {
         for (j = 0; j < AES_NUM_OF_COLUMNS; j++) {
             outputBlock[i + 4 * j] = state[AES_NUM_OF_COLUMNS * i + j];
+        }
+    }
+}
+
+void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey) {
+    Block msg[(blocks/BLOCK_SIZE) + 1];
+    CipherBlock e_msg[(blocks/BLOCK_SIZE) + 1];
+
+    for (int i = 0; i < ((blocks / BLOCK_SIZE) + 1); i++) {
+        for (int j = 0; j < BLOCK_SIZE; j++) {
+            msg[i].data[j] = original_block[(i * BLOCK_SIZE) + j];
+        }
+
+        aesEncryptBlock(msg[i].data /* in */, e_msg[i].data /* out */, expandedKey /* expanded key */);
+
+        for(int j =0; j < BLOCK_SIZE; j++){
+            outputBlock[(i*BLOCK_SIZE) + j] = e_msg[i].data[j];
+        }
+    }
+}
+
+void aesDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey){
+    Block msg[(blocks/BLOCK_SIZE) + 1];
+    CipherBlock d_msg[(blocks/BLOCK_SIZE) + 1];
+
+    for (int i = 0; i < ((blocks / BLOCK_SIZE) + 1); i++) {
+        for (int j = 0; j < BLOCK_SIZE; j++) {
+            msg[i].data[j] = encrypted_block[(i * BLOCK_SIZE) + j];
+        }
+
+        aesDecryptBlock(msg[i].data, d_msg[i].data, expandedKey);
+
+        for(int j =0; j < BLOCK_SIZE ; j++){
+            outputBlock[(i*BLOCK_SIZE) + j] = d_msg[i].data[j];
         }
     }
 }

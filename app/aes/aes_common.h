@@ -34,7 +34,7 @@ typedef struct {
 } Block;
 
 typedef struct {
-    uint8_t data[AES_KEYSIZE];
+    uint8_t data[BLOCK_SIZE];
 } CipherBlock;
 
 uint8_t gmult(uint8_t a, uint8_t b);

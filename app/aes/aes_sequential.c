@@ -136,6 +136,7 @@ void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey) {
 }
 
 void aesEncryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
+
     uint8_t state[4 * AES_NUM_OF_COLUMNS];
 
     for (uint8_t i = 0; i < 4; i++) {
@@ -226,4 +227,12 @@ void aesDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, u
             outputBlock[(i*BLOCK_SIZE) + j] = d_msg[i].data[j];
         }
     }
+}
+
+void initAES(int argc, char *argv[]) {
+    // Left empty intentionally
+}
+
+void finalizeAES() {
+    // Left empty intentionally
 }

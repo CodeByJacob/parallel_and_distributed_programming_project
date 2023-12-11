@@ -7,9 +7,9 @@
 #include "lib/test_helper/test_helper.h"
 
 #include "aes/aes_common.h"
-#include "aes/aes_sequential.h"
 
 static const int TEST_NAME_SIZE = 50;
+
 
 void test_aes_sequential(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size);
 
@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    initAES(argc, argv);
+
     char *test_category = argv[1];
 
     short testSize = sizeof(tests)/sizeof(TestCase);
@@ -42,8 +44,11 @@ int main(int argc, char *argv[]) {
         test_aes_sequential(test_category, msg_hex.data, msg_hex.size, key_hex.data, AES_KEYSIZE);
     }
 
+    finalizeAES();
+
     return 0;
 }
+
 
 void test_aes_sequential(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size) {
     uint8_t *encrypted_block = malloc(blocks);
@@ -58,7 +63,7 @@ void test_aes_sequential(char *test_category, uint8_t *original_block, size_t bl
 
     uint8_t *expandedKey = initializeAES();
 
-    TimerData keyExpansion_td = init_time(test_category, keyExpansion_test_name);
+    TimerData keyExpansion_td = init_time(test_category, "KeyExpansion", size);
     keyExpansion(key, expandedKey);
     printTime(&keyExpansion_td);
 

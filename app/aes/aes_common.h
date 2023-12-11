@@ -11,6 +11,7 @@
 #define AES192 0
 #define AES256 1
 
+// TODO: Adjust calculating this value to AES_NUM_OF_COLUMNS = dataSize / 4
 #define AES_NUM_OF_COLUMNS 4
 #define BLOCK_SIZE 16
 
@@ -37,6 +38,20 @@ typedef struct {
     uint8_t data[BLOCK_SIZE];
 } CipherBlock;
 
+void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey);
+
+void aesDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey);
+
+void aesEncryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
+
+void aesDecryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
+
+void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey);
+
+void initAES(int argc, char *argv[]);
+
+void finalizeAES();
+
 uint8_t gmult(uint8_t a, uint8_t b);
 
 void coef_addition(uint8_t a[], uint8_t b[], uint8_t result[]);
@@ -50,6 +65,8 @@ void rotWord(uint8_t *word);
 uint8_t *getRoundConstant(uint8_t roundNumber);
 
 uint8_t *initializeAES();
+
+void printUint8Array(const uint8_t *array, size_t size);
 
 static uint8_t sBox[256] = {
         0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,

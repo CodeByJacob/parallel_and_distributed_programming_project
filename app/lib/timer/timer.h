@@ -9,10 +9,9 @@ typedef struct TimerData{
     double clockTime;
     char *testCategory;
     char *testName;
-    int testSize;
 } TimerData;
 
-TimerData init_time(char* testCategory, char* testName, int testSize);
+TimerData init_time(char* testCategory, char* testName);
 
 double calculateTimeClockInSecond(TimerData *timerData);
 

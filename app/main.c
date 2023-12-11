@@ -63,15 +63,15 @@ void test_aes_sequential(char *test_category, uint8_t *original_block, size_t bl
 
     uint8_t *expandedKey = initializeAES();
 
-    TimerData keyExpansion_td = init_time(test_category, "KeyExpansion", size);
+    TimerData keyExpansion_td = init_time(test_category, "KeyExpansion", size*8);
     keyExpansion(key, expandedKey);
     printTime(&keyExpansion_td);
 
-    TimerData encrypt_td = init_time(test_category, encrypt_test_name);
+    TimerData encrypt_td = init_time(test_category, encrypt_test_name,size*8);
     aesEncrypt(original_block, blocks, encrypted_block, expandedKey);
     printTime(&encrypt_td);
 
-    TimerData decrypt_td = init_time(test_category, decrypt_test_name);
+    TimerData decrypt_td = init_time(test_category, decrypt_test_name,size*8);
     aesDecrypt(encrypted_block, blocks, decrypted_block, expandedKey);
     printTime(&decrypt_td);
 

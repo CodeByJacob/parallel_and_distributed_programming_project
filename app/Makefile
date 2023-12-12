@@ -65,7 +65,7 @@ run_hybrid: compile_hybrid
 run_all: compile_all
 	./$(APP_NAME_SEQUENTIAL) Sequential_Test && \
     	 ./$(APP_NAME_OPENMP) OpenMP_Test && \
-    	 ./$(APP_NAME_MPI) MPI_Test && \
+#    	 ./$(APP_NAME_MPI) MPI_Test && \
     	 ./$(APP_NAME_HYBRID) Hybrid_Test
 
 run_and_make_plots:

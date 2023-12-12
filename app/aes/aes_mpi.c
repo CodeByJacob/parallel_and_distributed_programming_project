@@ -1,45 +1,33 @@
 #include "aes_mpi.h"
 #include <mpi.h>
 
-void initAES(int argc, char *argv[]) {
-    MPI_Init(&argc, &argv);
-}
-
-void finalizeAES() {
-    MPI_Finalize();
-}
 
 void addRoundKey(uint8_t *state, uint8_t *roundKeyMatrix, uint8_t roundNumber) {
-    uint8_t column;
-
-    for (column = 0; column < AES_NUM_OF_COLUMNS; column++) {
-        state[AES_NUM_OF_COLUMNS * 0 + column] ^= roundKeyMatrix[4 * AES_NUM_OF_COLUMNS * roundNumber + 4 * column + 0];
-        state[AES_NUM_OF_COLUMNS * 1 + column] ^= roundKeyMatrix[4 * AES_NUM_OF_COLUMNS * roundNumber + 4 * column + 1];
-        state[AES_NUM_OF_COLUMNS * 2 + column] ^= roundKeyMatrix[4 * AES_NUM_OF_COLUMNS * roundNumber + 4 * column + 2];
-        state[AES_NUM_OF_COLUMNS * 3 + column] ^= roundKeyMatrix[4 * AES_NUM_OF_COLUMNS * roundNumber + 4 * column + 3];
+    for (uint8_t column = 0; column < AES_NUM_OF_COLUMNS; column++) {
+        for (uint8_t row = 0; row < 4; row++) {
+            state[AES_NUM_OF_COLUMNS * row + column] ^= roundKeyMatrix[4 * AES_NUM_OF_COLUMNS * roundNumber + 4 * column + row];
+        }
     }
 }
 
 void mixColumns(uint8_t *state) {
-
     uint8_t mixMatrix[] = {0x02, 0x01, 0x01, 0x03};
-    uint8_t row, column, inputColumn[4], resultColumn[4];
+    uint8_t inputColumn[4], resultColumn[4];
 
-    for (column = 0; column < AES_NUM_OF_COLUMNS; column++) {
-        for (row = 0; row < 4; row++) {
+    for (uint8_t column = 0; column < AES_NUM_OF_COLUMNS; column++) {
+        for (uint8_t row = 0; row < 4; row++) {
             inputColumn[row] = state[AES_NUM_OF_COLUMNS * row + column];
         }
 
         coef_multiplication(mixMatrix, inputColumn, resultColumn);
 
-        for (row = 0; row < 4; row++) {
+        for (uint8_t row = 0; row < 4; row++) {
             state[AES_NUM_OF_COLUMNS * row + column] = resultColumn[row];
         }
     }
 }
 
 void invMixColumns(uint8_t *state) {
-
     uint8_t inverseMixColumnMatrix[] = {0x0e, 0x09, 0x0d, 0x0b};
 
     uint8_t column[4], result[4];
@@ -51,20 +39,19 @@ void invMixColumns(uint8_t *state) {
 
         coef_multiplication(inverseMixColumnMatrix, column, result);
 
-        for (int i = 0; i < 4; i++) {
+        for (uint8_t i = 0; i < 4; i++) {
             state[AES_NUM_OF_COLUMNS * i + j] = result[i];
         }
     }
 }
 
 void shiftRows(uint8_t *state) {
+    uint8_t shiftAmount, tmp;
 
-    uint8_t row, shiftAmount, col, tmp;
-
-    for (row = 1; row < 4; row++) {
+    for (uint8_t row = 1; row < 4; row++) {
         shiftAmount = row;
 
-        for (col = 0; col < AES_NUM_OF_COLUMNS; col++) {
+        for (uint8_t col = 0; col < AES_NUM_OF_COLUMNS; col++) {
             tmp = state[AES_NUM_OF_COLUMNS * row + 0];
 
             for (uint8_t k = 1; k < AES_NUM_OF_COLUMNS; k++) {
@@ -81,13 +68,12 @@ void shiftRows(uint8_t *state) {
 }
 
 void invShiftRows(uint8_t *state) {
+    uint8_t shiftAmount, tmp;
 
-    uint8_t row, shiftAmount, col, tmp;
-
-    for (row = 1; row < 4; row++) {
+    for (uint8_t row = 1; row < 4; row++) {
         shiftAmount = row;
 
-        for (col = AES_NUM_OF_COLUMNS - 1; col > 0; col--) {
+        for (uint8_t col = AES_NUM_OF_COLUMNS - 1; col > 0; col--) {
             tmp = state[AES_NUM_OF_COLUMNS * row + AES_NUM_OF_COLUMNS - 1];
 
             for (uint8_t k = AES_NUM_OF_COLUMNS - 1; k > 0; k--) {
@@ -127,17 +113,15 @@ void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey) {
     uint8_t length = AES_NUM_OF_COLUMNS * (AES_NUM_OF_ROUNDS + 1);
 
     for (uint8_t i = 0; i < AES_KEYWORDS; i++) {
-        expandedKey[4 * i + 0] = originalKey[4 * i + 0];
-        expandedKey[4 * i + 1] = originalKey[4 * i + 1];
-        expandedKey[4 * i + 2] = originalKey[4 * i + 2];
-        expandedKey[4 * i + 3] = originalKey[4 * i + 3];
+        for (uint8_t j = 0; j < 4; j++){
+            expandedKey[4 * i + j] = originalKey[4 * i + j];
+        }
     }
 
     for (uint8_t i = AES_KEYWORDS; i < length; i++) {
-        tempWord[0] = expandedKey[4 * (i - 1) + 0];
-        tempWord[1] = expandedKey[4 * (i - 1) + 1];
-        tempWord[2] = expandedKey[4 * (i - 1) + 2];
-        tempWord[3] = expandedKey[4 * (i - 1) + 3];
+        for (uint8_t j = 0; j < 4; j++){
+            tempWord[j] = expandedKey[4 * (i - 1) + j];
+        }
 
         if (i % AES_KEYWORDS == 0) {
             rotWord(tempWord);
@@ -147,27 +131,25 @@ void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey) {
             subWord(tempWord);
         }
 
-        expandedKey[4 * i + 0] = expandedKey[4 * (i - AES_KEYWORDS) + 0] ^ tempWord[0];
-        expandedKey[4 * i + 1] = expandedKey[4 * (i - AES_KEYWORDS) + 1] ^ tempWord[1];
-        expandedKey[4 * i + 2] = expandedKey[4 * (i - AES_KEYWORDS) + 2] ^ tempWord[2];
-        expandedKey[4 * i + 3] = expandedKey[4 * (i - AES_KEYWORDS) + 3] ^ tempWord[3];
+        for (uint8_t j = 0; j < 4; j++) {
+            expandedKey[4 * i + j] = expandedKey[4 * (i - AES_KEYWORDS) + j] ^ tempWord[j];
+        }
     }
 }
 
-void aesSequentialEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
+void aesEncryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
 
     uint8_t state[4 * AES_NUM_OF_COLUMNS];
-    uint8_t round, i, j;
 
-    for (i = 0; i < 4; i++) {
-        for (j = 0; j < AES_NUM_OF_COLUMNS; j++) {
+    for (uint8_t i = 0; i < 4; i++) {
+        for (uint8_t j = 0; j < AES_NUM_OF_COLUMNS; j++) {
             state[AES_NUM_OF_COLUMNS * i + j] = inputBlock[i + 4 * j];
         }
     }
 
     addRoundKey(state, roundKeys, 0);
 
-    for (round = 1; round < AES_NUM_OF_ROUNDS; round++) {
+    for (uint8_t round = 1; round < AES_NUM_OF_ROUNDS; round++) {
         subBytes(state);
         shiftRows(state);
         mixColumns(state);
@@ -178,27 +160,26 @@ void aesSequentialEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *ro
     shiftRows(state);
     addRoundKey(state, roundKeys, AES_NUM_OF_ROUNDS);
 
-    for (i = 0; i < 4; i++) {
-        for (j = 0; j < AES_NUM_OF_COLUMNS; j++) {
+    for (uint8_t i = 0; i < 4; i++) {
+        for (uint8_t j = 0; j < AES_NUM_OF_COLUMNS; j++) {
             outputBlock[i + 4 * j] = state[AES_NUM_OF_COLUMNS * i + j];
         }
     }
 }
 
-void aesSequentialDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
+void aesDecryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
 
     uint8_t state[4 * AES_NUM_OF_COLUMNS];
-    uint8_t round, i, j;
 
-    for (i = 0; i < 4; i++) {
-        for (j = 0; j < AES_NUM_OF_COLUMNS; j++) {
+    for (uint8_t i = 0; i < 4; i++) {
+        for (uint8_t j = 0; j < AES_NUM_OF_COLUMNS; j++) {
             state[AES_NUM_OF_COLUMNS * i + j] = inputBlock[i + 4 * j];
         }
     }
 
     addRoundKey(state, roundKeys, AES_NUM_OF_ROUNDS);
 
-    for (round = AES_NUM_OF_ROUNDS - 1; round >= 1; round--) {
+    for (uint8_t round = AES_NUM_OF_ROUNDS - 1; round >= 1; round--) {
         invShiftRows(state);
         invSubBytes(state);
         addRoundKey(state, roundKeys, round);
@@ -209,44 +190,77 @@ void aesSequentialDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *ro
     invSubBytes(state);
     addRoundKey(state, roundKeys, 0);
 
-    for (i = 0; i < 4; i++) {
-        for (j = 0; j < AES_NUM_OF_COLUMNS; j++) {
+    for (uint8_t i = 0; i < 4; i++) {
+        for (uint8_t j = 0; j < AES_NUM_OF_COLUMNS; j++) {
             outputBlock[i + 4 * j] = state[AES_NUM_OF_COLUMNS * i + j];
         }
     }
 }
 
-void aesEncryptBlock(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, size_t dataSize) {
-    int rank, size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
+void aesSequentialEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey) {
+    Block msg[(blocks/BLOCK_SIZE) + 1];
+    CipherBlock e_msg[(blocks/BLOCK_SIZE) + 1];
 
-    size_t blockSize = dataSize / size;
+    for (uint8_t i = 0; i < ((blocks / BLOCK_SIZE) + 1); i++) {
+        for (uint8_t j = 0; j < BLOCK_SIZE; j++) {
+            msg[i].data[j] = original_block[(i * BLOCK_SIZE) + j];
+        }
 
-    uint8_t localInputBlock[blockSize];
-    uint8_t localOutputBlock[blockSize];
+        aesEncryptBlock(msg[i].data /* in */, e_msg[i].data /* out */, expandedKey /* expanded key */);
 
-    MPI_Scatter(inputData, blockSize, MPI_UINT8_T, localInputBlock, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
-
-    aesSequentialEncrypt(localInputBlock, localOutputBlock, roundKeys);
-
-    MPI_Gather(localOutputBlock, blockSize, MPI_UINT8_T, outputData, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
+        for(uint8_t j =0; j < BLOCK_SIZE; j++){
+            outputBlock[(i*BLOCK_SIZE) + j] = e_msg[i].data[j];
+        }
+    }
 }
 
-void aesDecryptBlock(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, size_t dataSize) {
+void aesSequentialDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey){
+    Block msg[(blocks/BLOCK_SIZE) + 1];
+    CipherBlock d_msg[(blocks/BLOCK_SIZE) + 1];
+
+    for (uint8_t i = 0; i < ((blocks / BLOCK_SIZE) + 1); i++) {
+        for (uint8_t j = 0; j < BLOCK_SIZE; j++) {
+            msg[i].data[j] = encrypted_block[(i * BLOCK_SIZE) + j];
+        }
+
+        aesDecryptBlock(msg[i].data, d_msg[i].data, expandedKey);
+
+        for(uint8_t j =0; j < BLOCK_SIZE ; j++){
+            outputBlock[(i*BLOCK_SIZE) + j] = d_msg[i].data[j];
+        }
+    }
+}
+
+void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-
-    size_t blockSize = dataSize / size;
+    size_t blockSize = blocks / size;
 
     uint8_t localInputBlock[blockSize];
     uint8_t localOutputBlock[blockSize];
 
-    MPI_Scatter(inputData, blockSize, MPI_UINT8_T, localInputBlock, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
+    MPI_Scatter(original_block, blockSize, MPI_UINT8_T, localInputBlock, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
 
-    aesSequentialDecrypt(localInputBlock, localOutputBlock, roundKeys);
+    aesSequentialEncrypt(localInputBlock, blockSize, localOutputBlock, expandedKey);
 
-    MPI_Gather(localOutputBlock, blockSize, MPI_UINT8_T, outputData, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
+    MPI_Gather(localOutputBlock, blockSize, MPI_UINT8_T, outputBlock, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
+}
+
+void aesDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey) {
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    size_t blockSize = blocks / size;
+
+    uint8_t localInputBlock[blockSize];
+    uint8_t localOutputBlock[blockSize];
+
+    MPI_Scatter(encrypted_block, blockSize, MPI_UINT8_T, localInputBlock, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
+
+    aesSequentialDecrypt(localInputBlock, blockSize, localOutputBlock, expandedKey);
+
+    MPI_Gather(localOutputBlock, blockSize, MPI_UINT8_T, outputBlock, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
 }

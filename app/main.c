@@ -11,7 +11,7 @@
 static const int TEST_NAME_SIZE = 50;
 
 
-void test_aes_sequential(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size);
+void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size);
 
 void init_test_names(size_t size, char *keyExpansion_test_name, size_t keyExpansion_size, char *encrypt_test_name,
                      size_t encrypt_size, char *decrypt_test_name,
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
         ConvertedData key_hex = convertDataToUint8(key.content);
         ConvertedData msg_hex = convertDataToUint8(msg.content);
 
-        test_aes_sequential(test_category, msg_hex.data, msg_hex.size, key_hex.data, AES_KEYSIZE);
+        test_aes(test_category, msg_hex.data, msg_hex.size, key_hex.data, AES_KEYSIZE);
     }
 
     finalizeAES();
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 }
 
 
-void test_aes_sequential(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size) {
+void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size) {
     uint8_t *encrypted_block = malloc(blocks);
     uint8_t *decrypted_block = malloc(blocks);
 

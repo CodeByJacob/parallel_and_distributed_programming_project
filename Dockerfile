@@ -8,5 +8,5 @@ ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 COPY ./app ./app
 WORKDIR ./app
 
-#RUN ["make","-f","Makefile"]
-#ENTRYPOINT ["make", "run_all"]
+RUN ["make","-f","Makefile"]
+ENTRYPOINT ["make", "run_all"]

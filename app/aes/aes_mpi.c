@@ -247,6 +247,7 @@ void aesSequentialDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outp
     }
 }
 
+// TODO: Each process gets a block that's size can be divided by 16
 void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -255,13 +256,21 @@ void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, ui
     int *sendcounts = malloc(size * sizeof(int));
     int *displs = malloc(size * sizeof(int));
 
-    // Assuming blocks are evenly distributed, with some possible remainder
-    size_t blockSize = blocks / size;
-    size_t remainder = blocks % size;
+    // Calculate the base blockSize for each process as a multiple of BLOCK_SIZE
+    size_t baseBlockSize = (blocks / size / BLOCK_SIZE) * BLOCK_SIZE;
+    size_t totalDistributedBlocks = baseBlockSize * (size - 1);
+
+    // The last process takes the remainder
+    size_t lastProcessBlocks = blocks - totalDistributedBlocks;
 
     // Compute send counts and displacements
     for (int i = 0; i < size; ++i) {
-        sendcounts[i] = (i < remainder) ? blockSize + 1 : blockSize;
+        if (i < size - 1) {
+            sendcounts[i] = baseBlockSize;
+        } else {
+            // Last process takes the remainder
+            sendcounts[i] = lastProcessBlocks;
+        }
         displs[i] = (i > 0) ? (displs[i - 1] + sendcounts[i - 1]) : 0;
     }
 
@@ -273,10 +282,14 @@ void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, ui
 
     MPI_Scatterv(original_block, sendcounts, displs, MPI_UINT8_T, localInputBlock, localBlockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
 
-    printf("Rank %d: localBlockSize = %zu: displs = %d\n", rank, localBlockSize, displs[rank]);
     aesSequentialEncrypt(localInputBlock, localBlockSize, localOutputBlock, expandedKey);
 
     MPI_Gatherv(localOutputBlock, localBlockSize, MPI_UINT8_T, outputBlock, sendcounts, displs, MPI_UINT8_T, 0, MPI_COMM_WORLD);
+
+    if(rank == 0) {
+        printf("Encrypted block:\n");
+        printUint8Array(outputBlock, blocks);
+    }
 
     // Clean up
     free(localInputBlock);
@@ -293,13 +306,22 @@ void aesDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, u
     int *sendcounts = malloc(size * sizeof(int));
     int *displs = malloc(size * sizeof(int));
 
-    // Assuming blocks are evenly distributed, with some possible remainder
-    size_t blockSize = blocks / size;
-    size_t remainder = blocks % size;
 
-    // Compute send counts and displacements for each process
+    // Calculate the base blockSize for each process as a multiple of BLOCK_SIZE
+    size_t baseBlockSize = (blocks / size / BLOCK_SIZE) * BLOCK_SIZE;
+    size_t totalDistributedBlocks = baseBlockSize * (size - 1);
+
+    // The last process takes the remainder
+    size_t lastProcessBlocks = blocks - totalDistributedBlocks;
+
+    // Compute send counts and displacements
     for (int i = 0; i < size; ++i) {
-        sendcounts[i] = (i < remainder) ? blockSize + 1 : blockSize;
+        if (i < size - 1) {
+            sendcounts[i] = baseBlockSize;
+        } else {
+            // Last process takes the remainder
+            sendcounts[i] = lastProcessBlocks;
+        }
         displs[i] = (i > 0) ? (displs[i - 1] + sendcounts[i - 1]) : 0;
     }
 
@@ -311,7 +333,6 @@ void aesDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, u
 
     MPI_Scatterv(encrypted_block, sendcounts, displs, MPI_UINT8_T, localInputBlock, localBlockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
 
-    printf("Rank %d: localBlockSize = %zu: displs = %d\n", rank, localBlockSize, displs[rank]);
     aesSequentialDecrypt(localInputBlock, localBlockSize, localOutputBlock, expandedKey);
 
     MPI_Gatherv(localOutputBlock, localBlockSize, MPI_UINT8_T, outputBlock, sendcounts, displs, MPI_UINT8_T, 0, MPI_COMM_WORLD);

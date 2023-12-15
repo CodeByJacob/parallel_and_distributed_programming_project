@@ -253,6 +253,11 @@ void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, ui
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
+    if(rank == 0) {
+        printf("Original block:\n");
+        printUint8Array(original_block, blocks);
+    }
+
     int *sendcounts = malloc(size * sizeof(int));
     int *displs = malloc(size * sizeof(int));
 
@@ -336,6 +341,11 @@ void aesDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, u
     aesSequentialDecrypt(localInputBlock, localBlockSize, localOutputBlock, expandedKey);
 
     MPI_Gatherv(localOutputBlock, localBlockSize, MPI_UINT8_T, outputBlock, sendcounts, displs, MPI_UINT8_T, 0, MPI_COMM_WORLD);
+
+    if(rank == 0) {
+        printf("Decrypted block:\n");
+        printUint8Array(outputBlock, blocks);
+    }
 
     // Clean up
     free(localInputBlock);

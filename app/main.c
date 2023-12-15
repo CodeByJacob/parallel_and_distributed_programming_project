@@ -7,9 +7,6 @@
 
 #include "aes/aes_common.h"
 
-static const int TEST_NAME_SIZE = 50;
-
-
 void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size);
 
 TestCase tests[] = {
@@ -54,8 +51,6 @@ int main(int argc, char *argv[]) {
 void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size) {
     uint8_t *encrypted_block = malloc(blocks);
     uint8_t *decrypted_block = malloc(blocks);
-
-    char encrypt_test_name[TEST_NAME_SIZE], decrypt_test_name[TEST_NAME_SIZE], keyExpansion_test_name[TEST_NAME_SIZE];
 
     uint8_t *expandedKey = initializeAES();
 

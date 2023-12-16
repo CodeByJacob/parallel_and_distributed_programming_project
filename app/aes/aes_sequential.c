@@ -1,4 +1,5 @@
 #include "aes_sequential.h"
+#include <assert.h>
 
 void addRoundKey(uint8_t *state, uint8_t *roundKeyMatrix, uint8_t roundNumber) {
     for (uint8_t column = 0; column < AES_NUM_OF_COLUMNS; column++) {
@@ -248,4 +249,8 @@ void initAES(int argc, char *argv[]) {
 
 void finalizeAES() {
     // Left empty intentionally
+}
+
+void testOriginalAndDecryptedBlock(uint8_t *originalBlock, uint8_t *decryptedBlock, size_t blocks) {
+    assert(memcmp(originalBlock, decryptedBlock, blocks) == 0);
 }

@@ -1,5 +1,3 @@
-#include <string.h>
-#include <assert.h>
 #include <stdio.h>
 
 #include "lib/timer/timer.h"
@@ -7,14 +5,7 @@
 
 #include "aes/aes_common.h"
 
-static const int TEST_NAME_SIZE = 50;
-
-
 void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key);
-
-void init_test_names(size_t size, char *keyExpansion_test_name, size_t keyExpansion_size, char *encrypt_test_name,
-                     size_t encrypt_size, char *decrypt_test_name,
-                     size_t decrypt_size);
 
 TestCase tests[] = {
         {"./files/extreme_test.txt","./files/key_256_2.txt"},
@@ -23,17 +14,18 @@ TestCase tests[] = {
 };
 
 int main(int argc, char *argv[]) {
+    initAES(argc, argv);
+
     if (argc != 2) {
         printf("Bad arguments size. It should be 2, containing test category");
+        finalizeAES();
         return 1;
     }
-
-    initAES(argc, argv);
 
     char *test_category = argv[1];
 
     short testSize = sizeof(tests)/sizeof(TestCase);
-    for(uint8_t i = 0; i < testSize; i++) {
+    for(short i = 0; i < testSize; i++) {
         FileData msg = readFromFile(tests[i].msg_path);
         FileData key = readFromFile(tests[i].key_path);
 
@@ -52,7 +44,6 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-
 
 void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key) {
     size_t blocks_malloc = (blocks + BLOCK_SIZE - 1) / BLOCK_SIZE * BLOCK_SIZE; // Round up to the nearest multiple of BLOCK_SIZE
@@ -73,17 +64,9 @@ void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8
     aesDecrypt(encrypted_block, blocks, decrypted_block, expandedKey);
     printTime(&decrypt_td);
 
-    assert(memcmp(original_block, decrypted_block, blocks) == 0);
+    testOriginalAndDecryptedBlock(original_block, decrypted_block, blocks);
 
     free(expandedKey);
     free(encrypted_block);
     free(decrypted_block);
-}
-
-void init_test_names(size_t size, char *keyExpansion_test_name, size_t keyExpansion_size, char *encrypt_test_name,
-                     size_t encrypt_size, char *decrypt_test_name,
-                     size_t decrypt_size) {
-    snprintf(keyExpansion_test_name, keyExpansion_size*8, "KeyExpansion size=%zu", size);
-    snprintf(encrypt_test_name, encrypt_size*8, "Encrypt size=%zu", size);
-    snprintf(decrypt_test_name, decrypt_size*8, "Decrypt size=%zu", size);
 }

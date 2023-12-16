@@ -12,7 +12,7 @@ OPT = -g -DDEBUG
 
 # LIBS
 LIBS = -L./lib/timer/ -I./lib/timer/ -ltimer -L./lib/test_helper/ -I./lib/test_helper/ -ltest_helper
-LIBS_MPI = -L./lib/timer/ -I./lib/timer/ -ltimertimer_mpi -L./lib/test_helper/ -I./lib/test_helper/ -ltest_helper
+LIBS_MPI = -L./lib/timer/ -I./lib/timer/ -ltimer_mpi -L./lib/test_helper/ -I./lib/test_helper/ -ltest_helper
 
 lib/timer/libtimer.a: timer.o
 	ar rs lib/timer/libtimer.a lib/timer/timer.o
@@ -57,7 +57,7 @@ run_openmp: compile_openmp
 	./$(APP_NAME_OPENMP) OpenMP_Test
 
 run_mpi: compile_mpi
-	mpirun --np 4 ./$(APP_NAME_MPI) MPI_Test
+	mpirun ./$(APP_NAME_MPI) MPI_Test
 
 run_hybrid: compile_hybrid
 	./$(APP_NAME_HYBRID) Hybrid_Test

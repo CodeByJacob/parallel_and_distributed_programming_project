@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "aes_openmp.h"
 
 void addRoundKey(uint8_t *state, uint8_t *roundKeyMatrix, uint8_t roundNumber) {
@@ -257,4 +258,8 @@ void initAES(int argc, char *argv[]) {
 
 void finalizeAES() {
     // Left empty intentionally
+}
+
+void testOriginalAndDecryptedBlock(uint8_t *originalBlock, uint8_t *decryptedBlock, size_t blocks) {
+    assert(memcmp(originalBlock, decryptedBlock, blocks) == 0);
 }

@@ -208,40 +208,43 @@ void aesSequentialEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outpu
     Block msg[numBlocks];
     CipherBlock e_msg[numBlocks];
 
+    uint8_t paddingSize = BLOCK_SIZE - (blocks % BLOCK_SIZE);
+    paddingSize = (paddingSize == 0) ? BLOCK_SIZE : paddingSize;
+
     for (size_t i = 0; i < numBlocks; i++) {
         for (size_t j = 0; j < BLOCK_SIZE; j++) {
             size_t index = (i * BLOCK_SIZE) + j;
-            msg[i].data[j] = (index < blocks) ? original_block[index] : 0; // Handle partial block
+            if (index < blocks) {
+                msg[i].data[j] = original_block[index];
+            } else {
+                msg[i].data[j] = paddingSize;
+            }
         }
 
         aesEncryptBlock(msg[i].data, e_msg[i].data, expandedKey);
 
         for (size_t j = 0; j < BLOCK_SIZE; j++) {
-            size_t index = (i * BLOCK_SIZE) + j;
-            if (index < blocks) {
-                outputBlock[index] = e_msg[i].data[j];
-            }
+            outputBlock[(i * BLOCK_SIZE) + j] = e_msg[i].data[j];
         }
     }
 }
 
 void aesSequentialDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey) {
     size_t numBlocks = (blocks + BLOCK_SIZE - 1) / BLOCK_SIZE; // Round up to handle any partial blocks
-    Block msg[numBlocks];
     CipherBlock d_msg[numBlocks];
 
     for (size_t i = 0; i < numBlocks; i++) {
-        for (size_t j = 0; j < BLOCK_SIZE; j++) {
-            size_t index = (i * BLOCK_SIZE) + j;
-            msg[i].data[j] = (index < blocks) ? encrypted_block[index] : 0; // Handle partial block
-        }
+        aesDecryptBlock(&encrypted_block[i * BLOCK_SIZE], d_msg[i].data, expandedKey);
 
-        aesDecryptBlock(msg[i].data, d_msg[i].data, expandedKey);
-
-        for (size_t j = 0; j < BLOCK_SIZE; j++) {
-            size_t index = (i * BLOCK_SIZE) + j;
-            if (index < blocks) {
-                outputBlock[index] = d_msg[i].data[j];
+        if (i == numBlocks - 1) {
+            uint8_t lastByte = d_msg[i].data[BLOCK_SIZE - 1];
+            size_t paddingSize = (lastByte <= BLOCK_SIZE) ? lastByte : 0;
+            for (size_t j = 0; j < BLOCK_SIZE - paddingSize; j++) {
+                outputBlock[(i * BLOCK_SIZE) + j] = d_msg[i].data[j];
+            }
+        } else {
+            for (size_t j = 0; j < BLOCK_SIZE; j++) {
+                outputBlock[(i * BLOCK_SIZE) + j] = d_msg[i].data[j];
             }
         }
     }

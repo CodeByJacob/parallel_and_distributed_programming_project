@@ -204,7 +204,7 @@ void aesDecryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKe
 }
 
 void aesSequentialEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey) {
-    size_t numBlocks = (blocks + BLOCK_SIZE - 1) / BLOCK_SIZE; // Round up to handle any partial blocks
+    size_t numBlocks = (blocks + BLOCK_SIZE - 1) / BLOCK_SIZE;
     Block msg[numBlocks];
     CipherBlock e_msg[numBlocks];
 
@@ -230,7 +230,7 @@ void aesSequentialEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outpu
 }
 
 void aesSequentialDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey) {
-    size_t numBlocks = (blocks + BLOCK_SIZE - 1) / BLOCK_SIZE; // Round up to handle any partial blocks
+    size_t numBlocks = (blocks + BLOCK_SIZE - 1) / BLOCK_SIZE;
     CipherBlock d_msg[numBlocks];
 
     for (size_t i = 0; i < numBlocks; i++) {

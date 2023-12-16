@@ -1,7 +1,6 @@
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
-#include <ctype.h>
 
 #include "lib/timer/timer.h"
 #include "lib/test_helper/test_helper.h"

@@ -66,7 +66,7 @@ run_all: compile_all
 	./$(APP_NAME_SEQUENTIAL) Sequential_Test 2>/dev/null; \
     ./$(APP_NAME_OPENMP) OpenMP_Test 2>/dev/null; \
     mpirun ./$(APP_NAME_MPI) MPI_Test 2>/dev/null; \
-    mpirun ./$(APP_NAME_HYBRID) Hybrid_Test 2>/dev/null
+    mpirun -np 2 ./$(APP_NAME_HYBRID) Hybrid_Test 2>/dev/null # -np 2 because we take half of the cores
 
 
 run_and_make_plots:

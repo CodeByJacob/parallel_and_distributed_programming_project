@@ -120,14 +120,14 @@ void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey) {
     uint8_t tempWord[4];
     uint8_t length = AES_NUM_OF_COLUMNS * (AES_NUM_OF_ROUNDS + 1);
 
-#pragma omp parallel for shared(expandedKey)
+    #pragma omp parallel for shared(expandedKey)
     for (uint8_t i = 0; i < AES_KEYWORDS; i++) {
         for (uint8_t j = 0; j < 4; j++) {
             expandedKey[4 * i + j] = originalKey[4 * i + j];
         }
     }
 
-#pragma omp parallel for
+    #pragma omp parallel for
     for (uint8_t i = AES_KEYWORDS; i < length; i++) {
         for (uint8_t j = 0; j < 4; j++) {
             tempWord[j] = expandedKey[4 * (i - 1) + j];
@@ -151,7 +151,7 @@ void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey) {
 void aesEncryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
     uint8_t state[4 * AES_NUM_OF_COLUMNS];
 
-#pragma omp parallel for collapse(2) shared(state)
+    #pragma omp parallel for collapse(2) shared(state)
     for (uint8_t i = 0; i < 4; i++) {
         for (uint8_t j = 0; j < AES_NUM_OF_COLUMNS; j++) {
             state[AES_NUM_OF_COLUMNS * i + j] = inputBlock[i + 4 * j];
@@ -160,7 +160,7 @@ void aesEncryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKe
 
     addRoundKey(state, roundKeys, 0);
 
-#pragma omp parallel for shared(state)
+    #pragma omp parallel for shared(state)
     for (uint8_t round = 1; round < AES_NUM_OF_ROUNDS; round++) {
         subBytes(state);
         shiftRows(state);
@@ -172,7 +172,7 @@ void aesEncryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKe
     shiftRows(state);
     addRoundKey(state, roundKeys, AES_NUM_OF_ROUNDS);
 
-#pragma omp parallel for collapse(2) shared(outputBlock, state)
+    #pragma omp parallel for collapse(2) shared(outputBlock, state)
     for (uint8_t i = 0; i < 4; i++) {
         for (uint8_t j = 0; j < AES_NUM_OF_COLUMNS; j++) {
             outputBlock[i + 4 * j] = state[AES_NUM_OF_COLUMNS * i + j];

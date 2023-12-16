@@ -23,3 +23,8 @@ jobs:
       - name: docker run
         run: docker run project:latest
 
+      - name: upload plots
+        uses: actions/upload-artifact@v4
+        with:
+          name: "plots_$(date +%Y-%m-%d_%H-%M)"
+          path: "results/"

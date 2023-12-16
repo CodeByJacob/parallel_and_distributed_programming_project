@@ -40,10 +40,10 @@ compile_sequential: main.c aes/aes_sequential.c lib/timer/libtimer.a lib/test_he
 compile_openmp: main.c aes/aes_openmp.c lib/timer/libtimer.a lib/test_helper/libtest_helper.a
 	$(CCOMP) -o $(APP_NAME_OPENMP) -fopenmp main.c aes/aes_common.c aes/aes_openmp.c $(LIBS)
 
-compile_mpi: main.c aes/aes_mpi.c lib/timer/libtimer_mpi.a
+compile_mpi: main.c aes/aes_mpi.c lib/timer/libtimer_mpi.a lib/test_helper/libtest_helper.a
 	$(MPICOMP) -o $(APP_NAME_MPI) main.c aes/aes_common.c aes/aes_mpi.c $(LIBS_MPI)
 
-compile_hybrid: main.c aes/aes_hybrid.c lib/timer/libtimer_mpi.a
+compile_hybrid: main.c aes/aes_hybrid.c lib/timer/libtimer_mpi.a lib/test_helper/libtest_helper.a
 	$(MPICOMP) -o $(APP_NAME_HYBRID) -fopenmp main.c aes/aes_common.c aes/aes_hybrid.c $(LIBS_MPI)
 
 
@@ -60,13 +60,14 @@ run_mpi: compile_mpi
 	mpirun ./$(APP_NAME_MPI) MPI_Test
 
 run_hybrid: compile_hybrid
-	./$(APP_NAME_HYBRID) Hybrid_Test
+	mpirun ./$(APP_NAME_HYBRID) Hybrid_Test
 
 run_all: compile_all
-	./$(APP_NAME_SEQUENTIAL) Sequential_Test && \
-    	 ./$(APP_NAME_OPENMP) OpenMP_Test && \
-    	 ./$(APP_NAME_MPI) MPI_Test && \
-    	 ./$(APP_NAME_HYBRID) Hybrid_Test
+	./$(APP_NAME_SEQUENTIAL) Sequential_Test 2>/dev/null; \
+    ./$(APP_NAME_OPENMP) OpenMP_Test 2>/dev/null; \
+    mpirun ./$(APP_NAME_MPI) MPI_Test 2>/dev/null; \
+    mpirun ./$(APP_NAME_HYBRID) Hybrid_Test 2>/dev/null
+
 
 run_and_make_plots:
 	$(MAKE) run_all | python3 makePlot.py

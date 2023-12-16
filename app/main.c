@@ -10,7 +10,7 @@ void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8
 TestCase tests[] = {
         {"./files/extreme_test.txt","./files/key_256_2.txt"},
         {"./files/test2.txt","./files/key_256_3.txt"},
-        {"./files/test5.txt","./files/key_256_1.txt"}
+        {"./files/test4.txt","./files/key_256_1.txt"}
 };
 
 int main(int argc, char *argv[]) {

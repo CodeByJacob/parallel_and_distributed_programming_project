@@ -1,5 +1,6 @@
 #include "aes_mpi.h"
 #include <mpi.h>
+#include <assert.h>
 
 void initAES(int argc, char *argv[]) {
     MPI_Init(&argc, &argv);
@@ -282,11 +283,6 @@ void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, ui
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    if(rank == 0) {
-        printf("Original block:\n");
-        printUint8Array(original_block, blocks);
-    }
-
     initialize_sendcoutns_and_displs(blocks, size, &sendcounts, &displs);
     size_t localBlockSize = sendcounts[rank];
 
@@ -298,11 +294,6 @@ void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, ui
     aesSequentialEncrypt(localInputBlock, localBlockSize, localOutputBlock, expandedKey);
 
     MPI_Gatherv(localOutputBlock, localBlockSize, MPI_UINT8_T, outputBlock, sendcounts, displs, MPI_UINT8_T, 0, MPI_COMM_WORLD);
-
-    if(rank == 0) {
-        printf("Encrypted block:\n");
-        printUint8Array(outputBlock, blocks);
-    }
 
     free_arrays(sendcounts, displs, localInputBlock, localOutputBlock);
 }
@@ -324,10 +315,14 @@ void aesDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, u
 
     MPI_Gatherv(localOutputBlock, localBlockSize, MPI_UINT8_T, outputBlock, sendcounts, displs, MPI_UINT8_T, 0, MPI_COMM_WORLD);
 
-    if(rank == 0) {
-        printf("Decrypted block:\n");
-        printUint8Array(outputBlock, blocks);
-    }
-
     free_arrays(sendcounts, displs, localInputBlock, localOutputBlock);
+}
+
+void testOriginalAndDecryptedBlock(uint8_t *originalBlock, uint8_t *decryptedBlock, size_t blocks) {
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    if(rank == 0) {
+        assert(memcmp(originalBlock, decryptedBlock, blocks) == 0);
+    }
 }

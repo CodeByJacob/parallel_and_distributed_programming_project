@@ -1,5 +1,3 @@
-#include <string.h>
-#include <assert.h>
 #include <stdio.h>
 
 #include "lib/timer/timer.h"
@@ -67,7 +65,7 @@ void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8
     aesDecrypt(encrypted_block, blocks, decrypted_block, expandedKey);
     printTime(&decrypt_td);
 
-    assert(memcmp(original_block, decrypted_block, blocks) == 0);
+    testOriginalAndDecryptedBlock(original_block, decrypted_block, blocks);
 
     free(expandedKey);
     free(encrypted_block);

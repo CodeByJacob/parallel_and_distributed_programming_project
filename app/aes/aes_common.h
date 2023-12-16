@@ -52,6 +52,8 @@ void initAES(int argc, char *argv[]);
 
 void finalizeAES();
 
+void testOriginalAndDecryptedBlock(uint8_t *originalBlock, uint8_t *decryptedBlock, size_t blocks);
+
 uint8_t gmult(uint8_t a, uint8_t b);
 
 void coef_addition(uint8_t a[], uint8_t b[], uint8_t result[]);

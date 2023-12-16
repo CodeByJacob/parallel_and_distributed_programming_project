@@ -247,9 +247,35 @@ void aesSequentialDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outp
     }
 }
 
-// TODO: Each process gets a block that's size can be divided by 16
+void initialize_sendcoutns_and_displs(size_t blocks, int size, int **sendcountsPtr, int **displsPtr) {
+    *sendcountsPtr = malloc(size * sizeof(int));
+    *displsPtr = malloc(size * sizeof(int));
+    size_t baseBlockSize = (blocks / size / BLOCK_SIZE) * BLOCK_SIZE;
+    size_t totalDistributedBlocks = baseBlockSize * (size - 1);
+    size_t lastProcessBlocks = blocks - totalDistributedBlocks;
+
+    int *sendcounts = *sendcountsPtr;
+    int *displs = *displsPtr;
+
+    for (int i = 0; i < size; ++i) {
+        if (i < size - 1) {
+            sendcounts[i] = baseBlockSize;
+        } else {
+            sendcounts[i] = lastProcessBlocks;
+        }
+        displs[i] = (i > 0) ? (displs[i - 1] + sendcounts[i - 1]) : 0;
+    }
+}
+
+void free_arrays(int *sendcounts, int *displs, uint8_t *localInputBlock, uint8_t *localOutputBlock) {
+    free(localInputBlock);
+    free(localOutputBlock);
+    free(sendcounts);
+    free(displs);
+}
+
 void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey) {
-    int rank, size;
+    int rank, size, *sendcounts, *displs;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
@@ -258,28 +284,7 @@ void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, ui
         printUint8Array(original_block, blocks);
     }
 
-    int *sendcounts = malloc(size * sizeof(int));
-    int *displs = malloc(size * sizeof(int));
-
-    // Calculate the base blockSize for each process as a multiple of BLOCK_SIZE
-    size_t baseBlockSize = (blocks / size / BLOCK_SIZE) * BLOCK_SIZE;
-    size_t totalDistributedBlocks = baseBlockSize * (size - 1);
-
-    // The last process takes the remainder
-    size_t lastProcessBlocks = blocks - totalDistributedBlocks;
-
-    // Compute send counts and displacements
-    for (int i = 0; i < size; ++i) {
-        if (i < size - 1) {
-            sendcounts[i] = baseBlockSize;
-        } else {
-            // Last process takes the remainder
-            sendcounts[i] = lastProcessBlocks;
-        }
-        displs[i] = (i > 0) ? (displs[i - 1] + sendcounts[i - 1]) : 0;
-    }
-
-    // Local block size for this process
+    initialize_sendcoutns_and_displs(blocks, size, &sendcounts, &displs);
     size_t localBlockSize = sendcounts[rank];
 
     uint8_t *localInputBlock = malloc(localBlockSize * sizeof(uint8_t));
@@ -296,41 +301,15 @@ void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, ui
         printUint8Array(outputBlock, blocks);
     }
 
-    // Clean up
-    free(localInputBlock);
-    free(localOutputBlock);
-    free(sendcounts);
-    free(displs);
+    free_arrays(sendcounts, displs, localInputBlock, localOutputBlock);
 }
 
 void aesDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey) {
-    int rank, size;
+    int rank, size, *sendcounts, *displs;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    int *sendcounts = malloc(size * sizeof(int));
-    int *displs = malloc(size * sizeof(int));
-
-
-    // Calculate the base blockSize for each process as a multiple of BLOCK_SIZE
-    size_t baseBlockSize = (blocks / size / BLOCK_SIZE) * BLOCK_SIZE;
-    size_t totalDistributedBlocks = baseBlockSize * (size - 1);
-
-    // The last process takes the remainder
-    size_t lastProcessBlocks = blocks - totalDistributedBlocks;
-
-    // Compute send counts and displacements
-    for (int i = 0; i < size; ++i) {
-        if (i < size - 1) {
-            sendcounts[i] = baseBlockSize;
-        } else {
-            // Last process takes the remainder
-            sendcounts[i] = lastProcessBlocks;
-        }
-        displs[i] = (i > 0) ? (displs[i - 1] + sendcounts[i - 1]) : 0;
-    }
-
-    // Local block size for this process
+    initialize_sendcoutns_and_displs(blocks, size, &sendcounts, &displs);
     size_t localBlockSize = sendcounts[rank];
 
     uint8_t *localInputBlock = malloc(localBlockSize * sizeof(uint8_t));
@@ -347,9 +326,5 @@ void aesDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, u
         printUint8Array(outputBlock, blocks);
     }
 
-    // Clean up
-    free(localInputBlock);
-    free(localOutputBlock);
-    free(sendcounts);
-    free(displs);
+    free_arrays(sendcounts, displs, localInputBlock, localOutputBlock);
 }

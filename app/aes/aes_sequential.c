@@ -1,4 +1,5 @@
 #include "aes_sequential.h"
+#include <assert.h>
 
 void addRoundKey(uint8_t *state, uint8_t *roundKeyMatrix, uint8_t roundNumber) {
     for (uint8_t column = 0; column < AES_NUM_OF_COLUMNS; column++) {
@@ -196,35 +197,48 @@ void aesDecryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKe
 }
 
 void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey) {
-    Block msg[(blocks/BLOCK_SIZE) + 1];
-    CipherBlock e_msg[(blocks/BLOCK_SIZE) + 1];
+    size_t numBlocks = (blocks + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    Block msg[numBlocks];
+    CipherBlock e_msg[numBlocks];
 
-    for (uint8_t i = 0; i < ((blocks / BLOCK_SIZE) + 1); i++) {
-        for (uint8_t j = 0; j < BLOCK_SIZE; j++) {
-            msg[i].data[j] = original_block[(i * BLOCK_SIZE) + j];
+    uint8_t paddingSize = BLOCK_SIZE - (blocks % BLOCK_SIZE);
+    paddingSize = (paddingSize == 0) ? BLOCK_SIZE : paddingSize;
+
+    for (size_t i = 0; i < numBlocks; i++) {
+        for (size_t j = 0; j < BLOCK_SIZE; j++) {
+            size_t index = (i * BLOCK_SIZE) + j;
+            if (index < blocks) {
+                msg[i].data[j] = original_block[index];
+            } else {
+                msg[i].data[j] = paddingSize;
+            }
         }
 
-        aesEncryptBlock(msg[i].data /* in */, e_msg[i].data /* out */, expandedKey /* expanded key */);
+        aesEncryptBlock(msg[i].data, e_msg[i].data, expandedKey);
 
-        for(uint8_t j =0; j < BLOCK_SIZE; j++){
-            outputBlock[(i*BLOCK_SIZE) + j] = e_msg[i].data[j];
+        for (size_t j = 0; j < BLOCK_SIZE; j++) {
+            outputBlock[(i * BLOCK_SIZE) + j] = e_msg[i].data[j];
         }
     }
 }
 
 void aesDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey){
-    Block msg[(blocks/BLOCK_SIZE) + 1];
-    CipherBlock d_msg[(blocks/BLOCK_SIZE) + 1];
+    size_t numBlocks = (blocks + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    CipherBlock d_msg[numBlocks];
 
-    for (uint8_t i = 0; i < ((blocks / BLOCK_SIZE) + 1); i++) {
-        for (uint8_t j = 0; j < BLOCK_SIZE; j++) {
-            msg[i].data[j] = encrypted_block[(i * BLOCK_SIZE) + j];
-        }
+    for (size_t i = 0; i < numBlocks; i++) {
+        aesDecryptBlock(&encrypted_block[i * BLOCK_SIZE], d_msg[i].data, expandedKey);
 
-        aesDecryptBlock(msg[i].data, d_msg[i].data, expandedKey);
-
-        for(uint8_t j =0; j < BLOCK_SIZE ; j++){
-            outputBlock[(i*BLOCK_SIZE) + j] = d_msg[i].data[j];
+        if (i == numBlocks - 1) {
+            uint8_t lastByte = d_msg[i].data[BLOCK_SIZE - 1];
+            size_t paddingSize = (lastByte <= BLOCK_SIZE) ? lastByte : 0;
+            for (size_t j = 0; j < BLOCK_SIZE - paddingSize; j++) {
+                outputBlock[(i * BLOCK_SIZE) + j] = d_msg[i].data[j];
+            }
+        } else {
+            for (size_t j = 0; j < BLOCK_SIZE; j++) {
+                outputBlock[(i * BLOCK_SIZE) + j] = d_msg[i].data[j];
+            }
         }
     }
 }
@@ -235,4 +249,8 @@ void initAES(int argc, char *argv[]) {
 
 void finalizeAES() {
     // Left empty intentionally
+}
+
+void testOriginalAndDecryptedBlock(uint8_t *originalBlock, uint8_t *decryptedBlock, size_t blocks) {
+    assert(memcmp(originalBlock, decryptedBlock, blocks) == 0);
 }

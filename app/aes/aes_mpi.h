@@ -3,18 +3,18 @@
 
 #include "aes_common.h"
 
-void initAES(int argc, char *argv[]);
+void addRoundKey(uint8_t *state, uint8_t *roundKeyMatrix, uint8_t roundNumber);
 
-void finalizeAES();
+void mixColumns(uint8_t *state);
 
-void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey);
+void invMixColumns(uint8_t *state);
 
-void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey);
+void shiftRows(uint8_t *state);
 
-void aesDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey);
+void invShiftRows(uint8_t *state);
 
-void aesEncryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
+void subBytes(uint8_t *state);
 
-void aesDecryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
+void invSubBytes(uint8_t *state);
 
 #endif //PARALLEL_AND_DISTRIBUTED_PROGRAMMING_PROJECT_AES_MPI_H

@@ -13,9 +13,7 @@ ConvertedData convertDataToUint8(const char *data) {
         return convertedData;
     }
 
-    for (size_t i = 0; i < convertedData.size; ++i) {
-        convertedData.data[i] = data[i];
-    }
+    memcpy(convertedData.data, data, convertedData.size);
 
     return convertedData;
 }

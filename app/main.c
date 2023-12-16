@@ -10,7 +10,7 @@
 static const int TEST_NAME_SIZE = 50;
 
 
-void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size);
+void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key);
 
 void init_test_names(size_t size, char *keyExpansion_test_name, size_t keyExpansion_size, char *encrypt_test_name,
                      size_t encrypt_size, char *decrypt_test_name,
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
         ConvertedData key_hex = convertDataToUint8(key.content);
         ConvertedData msg_hex = convertDataToUint8(msg.content);
 
-        test_aes(test_category, msg_hex.data, msg_hex.size, key_hex.data, AES_KEYSIZE);
+        test_aes(test_category, msg_hex.data, msg_hex.size, key_hex.data);
 
         free(msg.content);
         free(key.content);
@@ -54,32 +54,30 @@ int main(int argc, char *argv[]) {
 }
 
 
-void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size) {
-    uint8_t *encrypted_block = malloc(blocks);
-    uint8_t *decrypted_block = malloc(blocks);
-
-    char encrypt_test_name[TEST_NAME_SIZE], decrypt_test_name[TEST_NAME_SIZE], keyExpansion_test_name[TEST_NAME_SIZE];
-
-    init_test_names(size,
-                    keyExpansion_test_name, TEST_NAME_SIZE,
-                    encrypt_test_name, TEST_NAME_SIZE,
-                    decrypt_test_name, TEST_NAME_SIZE);
+void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key) {
+    size_t blocks_malloc = (blocks + BLOCK_SIZE - 1) / BLOCK_SIZE * BLOCK_SIZE; // Round up to the nearest multiple of BLOCK_SIZE
+    uint8_t *encrypted_block = malloc(blocks_malloc);
+    uint8_t *decrypted_block = malloc(blocks_malloc);
 
     uint8_t *expandedKey = initializeAES();
 
-    TimerData keyExpansion_td = init_time(test_category, "KeyExpansion", size*8);
+    TimerData keyExpansion_td = init_time(test_category, "KeyExpansion", blocks);
     keyExpansion(key, expandedKey);
     printTime(&keyExpansion_td);
 
-    TimerData encrypt_td = init_time(test_category, encrypt_test_name,size*8);
+    TimerData encrypt_td = init_time(test_category, "Encrypt",blocks);
     aesEncrypt(original_block, blocks, encrypted_block, expandedKey);
     printTime(&encrypt_td);
 
-    TimerData decrypt_td = init_time(test_category, decrypt_test_name,size*8);
+    TimerData decrypt_td = init_time(test_category, "Decrypt",blocks);
     aesDecrypt(encrypted_block, blocks, decrypted_block, expandedKey);
     printTime(&decrypt_td);
 
     assert(memcmp(original_block, decrypted_block, blocks) == 0);
+
+    free(expandedKey);
+    free(encrypted_block);
+    free(decrypted_block);
 }
 
 void init_test_names(size_t size, char *keyExpansion_test_name, size_t keyExpansion_size, char *encrypt_test_name,

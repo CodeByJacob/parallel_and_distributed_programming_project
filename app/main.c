@@ -3,29 +3,23 @@
 #include <stdio.h>
 
 #include "lib/timer/timer.h"
+#include "lib/test_helper/test_helper.h"
 
 #include "aes/aes_common.h"
 
 static const int TEST_NAME_SIZE = 50;
 
-void test_aes(char *test_category, uint8_t *original_block, uint8_t *key, size_t size);
 
-struct {
-    uint8_t *original_block;
-    uint8_t *key;
-    size_t size;
-} tests[] = {
-        {
-                (uint8_t[]) {
-                        0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d,
-                        0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34},
-                (uint8_t[]) {
-                        0x8e, 0x73, 0xb0, 0xf7, 0xda, 0x0e, 0x64, 0x52,
-                        0xc8, 0x10, 0xf3, 0x2b, 0x80, 0x90, 0x79, 0xe5,
-                        0x62, 0xf8, 0xea, 0xd2, 0x52, 0x2c, 0x6b, 0x7b
-                        },
-                64},
+void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size);
 
+void init_test_names(size_t size, char *keyExpansion_test_name, size_t keyExpansion_size, char *encrypt_test_name,
+                     size_t encrypt_size, char *decrypt_test_name,
+                     size_t decrypt_size);
+
+TestCase tests[] = {
+        {"./files/extreme_test.txt","./files/key_256_2.txt"},
+        {"./files/test2.txt","./files/key_256_3.txt"},
+        {"./files/test5.txt","./files/key_256_1.txt"}
 };
 
 int main(int argc, char *argv[]) {
@@ -38,10 +32,20 @@ int main(int argc, char *argv[]) {
 
     char *test_category = argv[1];
 
-    uint8_t tests_size = sizeof(tests) / sizeof(tests[0]);
+    short testSize = sizeof(tests)/sizeof(TestCase);
+    for(uint8_t i = 0; i < testSize; i++) {
+        FileData msg = readFromFile(tests[i].msg_path);
+        FileData key = readFromFile(tests[i].key_path);
 
-    for (uint8_t i = 0; i < tests_size; i++) {
-        test_aes(test_category, tests[i].original_block, tests[i].key, tests[i].size);
+        ConvertedData key_hex = convertDataToUint8(key.content);
+        ConvertedData msg_hex = convertDataToUint8(msg.content);
+
+        test_aes(test_category, msg_hex.data, msg_hex.size, key_hex.data, AES_KEYSIZE);
+
+        free(msg.content);
+        free(key.content);
+        free(key_hex.data);
+        free(msg_hex.data);
     }
 
     finalizeAES();
@@ -49,29 +53,39 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void test_aes(char *test_category, uint8_t *original_block, uint8_t *key, size_t size) {
-    uint8_t encrypted_block[size];
-    uint8_t decrypted_block[size];
+
+void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size) {
+    uint8_t *encrypted_block = malloc(blocks);
+    uint8_t *decrypted_block = malloc(blocks);
+
+    char encrypt_test_name[TEST_NAME_SIZE], decrypt_test_name[TEST_NAME_SIZE], keyExpansion_test_name[TEST_NAME_SIZE];
+
+    init_test_names(size,
+                    keyExpansion_test_name, TEST_NAME_SIZE,
+                    encrypt_test_name, TEST_NAME_SIZE,
+                    decrypt_test_name, TEST_NAME_SIZE);
 
     uint8_t *expandedKey = initializeAES();
 
-    TimerData keyExpansion_td = init_time(test_category, "KeyExpansion", size);
+    TimerData keyExpansion_td = init_time(test_category, "KeyExpansion", size*8);
     keyExpansion(key, expandedKey);
     printTime(&keyExpansion_td);
 
-    memcpy(encrypted_block, original_block, size);
-
-    TimerData encrypt_td = init_time(test_category, "Encrypt", size);
-    aesEncrypt(original_block /* in */, encrypted_block /* out */, expandedKey /* expanded key */, size);
+    TimerData encrypt_td = init_time(test_category, encrypt_test_name,size*8);
+    aesEncrypt(original_block, blocks, encrypted_block, expandedKey);
     printTime(&encrypt_td);
 
-    memcpy(decrypted_block, encrypted_block, size);
-
-    TimerData decrypt_td = init_time(test_category, "Decrypt", size);
-    aesDecrypt(encrypted_block, decrypted_block, expandedKey, size);
+    TimerData decrypt_td = init_time(test_category, decrypt_test_name,size*8);
+    aesDecrypt(encrypted_block, blocks, decrypted_block, expandedKey);
     printTime(&decrypt_td);
 
-    assert(memcmp(original_block, decrypted_block, size) == 0);
+    assert(memcmp(original_block, decrypted_block, blocks) == 0);
+}
 
-    free(expandedKey);
+void init_test_names(size_t size, char *keyExpansion_test_name, size_t keyExpansion_size, char *encrypt_test_name,
+                     size_t encrypt_size, char *decrypt_test_name,
+                     size_t decrypt_size) {
+    snprintf(keyExpansion_test_name, keyExpansion_size*8, "KeyExpansion size=%zu", size);
+    snprintf(encrypt_test_name, encrypt_size*8, "Encrypt size=%zu", size);
+    snprintf(decrypt_test_name, decrypt_size*8, "Decrypt size=%zu", size);
 }

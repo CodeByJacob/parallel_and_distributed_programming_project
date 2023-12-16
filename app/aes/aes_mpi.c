@@ -216,7 +216,7 @@ void aesSequentialDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *ro
     }
 }
 
-void aesEncrypt(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, size_t dataSize) {
+void aesEncryptBlock(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, size_t dataSize) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -233,10 +233,11 @@ void aesEncrypt(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, siz
     MPI_Gather(localOutputBlock, blockSize, MPI_UINT8_T, outputData, blockSize, MPI_UINT8_T, 0, MPI_COMM_WORLD);
 }
 
-void aesDecrypt(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, size_t dataSize) {
+void aesDecryptBlock(uint8_t *inputData, uint8_t *outputData, uint8_t *roundKeys, size_t dataSize) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+
 
     size_t blockSize = dataSize / size;
 

@@ -22,10 +22,9 @@ uint8_t gmult(uint8_t a, uint8_t b) {
 }
 
 void coef_addition(uint8_t a[], uint8_t b[], uint8_t result[]) {
-    result[0] = a[0] ^ b[0];
-    result[1] = a[1] ^ b[1];
-    result[2] = a[2] ^ b[2];
-    result[3] = a[3] ^ b[3];
+    for(uint8_t i = 0; i < 4; i++){
+        result[i] = a[i] ^ b[i];
+    }
 }
 
 void coef_multiplication(uint8_t *a, uint8_t *b, uint8_t *result) {
@@ -36,14 +35,12 @@ void coef_multiplication(uint8_t *a, uint8_t *b, uint8_t *result) {
 }
 
 void subWord(uint8_t *word) {
-
     for (uint8_t i = 0; i < 4; i++) {
         word[i] = sBox[word[i]];
     }
 }
 
 void rotWord(uint8_t *word) {
-
     uint8_t tmp = word[0];
 
     for (uint8_t i = 0; i < 3; i++) {

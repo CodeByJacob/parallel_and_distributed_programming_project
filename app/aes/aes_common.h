@@ -8,29 +8,43 @@
 
 
 #define AES128 0
-#define AES192 1
-#define AES256 0
+#define AES192 0
+#define AES256 1
 
 // TODO: Adjust calculating this value to AES_NUM_OF_COLUMNS = dataSize / 4
 #define AES_NUM_OF_COLUMNS 4
+#define BLOCK_SIZE 16
 
 #if defined(AES256) && (AES256 == 1)
-#define AES_KEYWORDS  8
-#define AES_NUM_OF_ROUNDS 14
-#define AES_KEYSIZE 32
+    #define AES_KEYWORDS  8
+    #define AES_NUM_OF_ROUNDS 14
+    #define AES_KEYSIZE 32 // 256b
 #elif defined(AES192) && (AES192 == 1)
     #define AES_KEYWORDS  6
     #define AES_NUM_OF_ROUNDS 12
-    #define AES_KEYSIZE 24
+    #define AES_KEYSIZE 24 // 192b
 #else
     #define AES_KEYWORDS  4
     #define AES_NUM_OF_ROUNDS 10
-    #define AES_KEYSIZE 16
+    #define AES_KEYSIZE 16 // 128b
 #endif
 
-void aesEncrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys, size_t blockSize);
+typedef struct {
+    size_t size;
+    uint8_t data[BLOCK_SIZE];
+} Block;
 
-void aesDecrypt(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys, size_t blockSize);
+typedef struct {
+    uint8_t data[BLOCK_SIZE];
+} CipherBlock;
+
+void aesEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey);
+
+void aesDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey);
+
+void aesEncryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
+
+void aesDecryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys);
 
 void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey);
 
@@ -92,6 +106,6 @@ static uint8_t invSBox[256] = {
         0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d
 };
 
-static uint8_t roundConstants[] = {0x02, 0x00, 0x00, 0x00};
+static uint8_t roundConstants[] = {0x01, 0x02, 0x00, 0x00};
 
 #endif //PARALLEL_AND_DISTRIBUTED_PROGRAMMING_PROJECT_AES_COMMON_H

@@ -42,6 +42,11 @@ int main(int argc, char *argv[]) {
         ConvertedData msg_hex = convertDataToUint8(msg.content);
 
         test_aes(test_category, msg_hex.data, msg_hex.size, key_hex.data, AES_KEYSIZE);
+
+        free(msg.content);
+        free(key.content);
+        free(key_hex.data);
+        free(msg_hex.data);
     }
 
     finalizeAES();
@@ -76,10 +81,6 @@ void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8
     printTime(&decrypt_td);
 
     assert(memcmp(original_block, decrypted_block, blocks) == 0);
-
-    free(expandedKey);
-    free(encrypted_block);
-    free(decrypted_block);
 }
 
 void init_test_names(size_t size, char *keyExpansion_test_name, size_t keyExpansion_size, char *encrypt_test_name,

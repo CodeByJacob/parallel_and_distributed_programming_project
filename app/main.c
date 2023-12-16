@@ -32,7 +32,6 @@ int main(int argc, char *argv[]) {
         ConvertedData msg_hex = convertDataToUint8(msg.content);
 
         test_aes(test_category, msg_hex.data, msg_hex.size, key_hex.data);
-        test_aes(test_category, msg_hex.data, msg_hex.size, key_hex.data, AES_KEYSIZE);
 
         free(msg.content);
         free(key.content);

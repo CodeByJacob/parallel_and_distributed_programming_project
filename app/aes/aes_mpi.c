@@ -5,7 +5,9 @@
 void initAES(int argc, char *argv[]) {
     MPI_Init(&argc, &argv);
 }
+
 void finalizeAES() {
+    MPI_Barrier(MPI_COMM_WORLD);
     MPI_Finalize();
 }
 

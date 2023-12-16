@@ -14,17 +14,18 @@ TestCase tests[] = {
 };
 
 int main(int argc, char *argv[]) {
+    initAES(argc, argv);
+
     if (argc != 2) {
         printf("Bad arguments size. It should be 2, containing test category");
+        finalizeAES();
         return 1;
     }
-
-    initAES(argc, argv);
 
     char *test_category = argv[1];
 
     short testSize = sizeof(tests)/sizeof(TestCase);
-    for(uint8_t i = 0; i < testSize; i++) {
+    for(short i = 0; i < testSize; i++) {
         FileData msg = readFromFile(tests[i].msg_path);
         FileData key = readFromFile(tests[i].key_path);
 

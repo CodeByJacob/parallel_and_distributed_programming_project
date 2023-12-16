@@ -5,7 +5,7 @@
 
 #include "aes/aes_common.h"
 
-void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size);
+void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key);
 
 TestCase tests[] = {
         {"./files/extreme_test.txt","./files/key_256_2.txt"},
@@ -45,8 +45,7 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-
-void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key, size_t size) {
+void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key) {
     size_t blocks_malloc = (blocks + BLOCK_SIZE - 1) / BLOCK_SIZE * BLOCK_SIZE; // Round up to the nearest multiple of BLOCK_SIZE
     uint8_t *encrypted_block = malloc(blocks_malloc);
     uint8_t *decrypted_block = malloc(blocks_malloc);

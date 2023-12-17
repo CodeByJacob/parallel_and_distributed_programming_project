@@ -20,6 +20,7 @@ typedef struct {
 typedef struct {
     char *msg_path;
     char *key_path;
+    int msg_size;
 } TestCase;
 
 FileData readFromFile(const char *filename);

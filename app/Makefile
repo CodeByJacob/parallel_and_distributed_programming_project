@@ -70,7 +70,7 @@ run_all: compile_all
 
 
 run_and_make_plots:
-	$(MAKE) run_all | python3 makePlot.py
+	($(MAKE) run_all 2>/dev/null) | python3 makePlot.py
 
 # CLEAN
 clean:

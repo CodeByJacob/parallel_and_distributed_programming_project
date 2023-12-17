@@ -20,7 +20,7 @@ ConvertedData convertDataToUint8(const char *data) {
 
 FileData readFromFile(const char *filename) {
     FileData fileData;
-    FILE *filePointer = fopen(filename, "rb");  // Open in binary mode
+    FILE *filePointer = fopen(filename, "rb");
 
     if (filePointer == NULL) {
         fprintf(stderr, "Error opening file\n");
@@ -33,7 +33,7 @@ FileData readFromFile(const char *filename) {
     fileData.size = ftell(filePointer);
     fseek(filePointer, 0, SEEK_SET);
 
-    fileData.content = (char *) malloc(fileData.size);
+    fileData.content = (char *) malloc(fileData.size + 1);  // Allocate extra byte for null terminator
 
     if (fileData.content == NULL) {
         fprintf(stderr, "Memory allocation failed\n");
@@ -49,6 +49,8 @@ FileData readFromFile(const char *filename) {
         fileData.size = 0;
         return fileData;
     }
+
+    fileData.content[fileData.size] = '\0';  // Null-terminate the string
 
     fclose(filePointer);
 

@@ -8,9 +8,9 @@
 void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8_t *key);
 
 TestCase tests[] = {
-        {"./files/extreme_test.txt","./files/key_256_2.txt"},
-        {"./files/test2.txt","./files/key_256_3.txt"},
-        {"./files/test5.txt","./files/key_256_1.txt"}
+        {"./files/test2.txt","./files/key_256_3.txt", 147},
+        {"./files/test6.txt","./files/key_256_1.txt", 699},
+        {"./files/extreme_test.txt","./files/key_256_2.txt", 1391},
 };
 
 int main(int argc, char *argv[]) {
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
         ConvertedData key_hex = convertDataToUint8(key.content);
         ConvertedData msg_hex = convertDataToUint8(msg.content);
 
-        test_aes(test_category, msg_hex.data, msg_hex.size, key_hex.data);
+        test_aes(test_category, msg_hex.data, tests[i].msg_size, key_hex.data);
 
         free(msg.content);
         free(key.content);

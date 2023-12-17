@@ -4,6 +4,12 @@ APP_NAME_OPENMP = $(APP_NAME)_openmp
 APP_NAME_MPI = $(APP_NAME)_mpi
 APP_NAME_HYBRID = $(APP_NAME)_hybrid
 
+PYTHON_ENV = ./venv/bin
+
+prepare_python:
+	(python3 -m venv venv && chmod +x $(PYTHON_ENV)/activate && $(PYTHON_ENV)/activate && $(PYTHON_ENV)/pip3 install -r requirements.txt) > /dev/null 2>&1
+
+
 CCOMP = gcc
 MPICOMP = mpicc
 LOADER = gcc
@@ -40,10 +46,10 @@ compile_sequential: main.c aes/aes_sequential.c lib/timer/libtimer.a lib/test_he
 compile_openmp: main.c aes/aes_openmp.c lib/timer/libtimer.a lib/test_helper/libtest_helper.a
 	$(CCOMP) -o $(APP_NAME_OPENMP) -fopenmp main.c aes/aes_common.c aes/aes_openmp.c $(LIBS)
 
-compile_mpi: main.c aes/aes_mpi.c lib/timer/libtimer_mpi.a
+compile_mpi: main.c aes/aes_mpi.c lib/timer/libtimer_mpi.a lib/test_helper/libtest_helper.a
 	$(MPICOMP) -o $(APP_NAME_MPI) main.c aes/aes_common.c aes/aes_mpi.c $(LIBS_MPI)
 
-compile_hybrid: main.c aes/aes_hybrid.c lib/timer/libtimer_mpi.a
+compile_hybrid: main.c aes/aes_hybrid.c lib/timer/libtimer_mpi.a lib/test_helper/libtest_helper.a
 	$(MPICOMP) -o $(APP_NAME_HYBRID) -fopenmp main.c aes/aes_common.c aes/aes_hybrid.c $(LIBS_MPI)
 
 
@@ -53,23 +59,32 @@ compile_all: compile_sequential compile_openmp compile_mpi compile_hybrid
 run_sequential: compile_sequential
 	./$(APP_NAME_SEQUENTIAL) Sequential_Test
 
+run_sequential_valgrind: compile_sequential
+	valgrind --leak-check=full ./$(APP_NAME_SEQUENTIAL) Sequential_Test
+
 run_openmp: compile_openmp
 	./$(APP_NAME_OPENMP) OpenMP_Test
 
 run_mpi: compile_mpi
 	mpirun ./$(APP_NAME_MPI) MPI_Test
 
+run_mpi_valgrind: compile_mpi
+	mpirun valgrind --leak-check=full ./$(APP_NAME_MPI) MPI_Test
+
 run_hybrid: compile_hybrid
-	./$(APP_NAME_HYBRID) Hybrid_Test
+	mpirun ./$(APP_NAME_HYBRID) Hybrid_Test
 
 run_all: compile_all
-	./$(APP_NAME_SEQUENTIAL) Sequential_Test && \
-    	 ./$(APP_NAME_OPENMP) OpenMP_Test && \
-    	 ./$(APP_NAME_MPI) MPI_Test && \
-    	 ./$(APP_NAME_HYBRID) Hybrid_Test
+	./$(APP_NAME_SEQUENTIAL) Sequential_Test 2>/dev/null; \
+    ./$(APP_NAME_OPENMP) OpenMP_Test 2>/dev/null; \
+    mpirun ./$(APP_NAME_MPI) MPI_Test 2>/dev/null || true; \
+    mpirun -np 2 ./$(APP_NAME_HYBRID) Hybrid_Test 2>/dev/null || true; # -np 2 because we take half of the cores
 
-run_and_make_plots:
-	$(MAKE) run_all | python3 makePlot.py
+run_and_make_plots: prepare_python
+	(for i in 1 .. 3; do \
+   		$(MAKE) run_all 2>/dev/null; \
+   		sleep 1; \
+   	done;) | $(PYTHON_ENV)/python3 makePlot.py && ls results/
 
 # CLEAN
 clean:

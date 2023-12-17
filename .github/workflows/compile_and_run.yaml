@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - uses: docker/login-action@v3
         with:
@@ -23,8 +23,10 @@ jobs:
       - name: docker run
         run: docker run project:latest
 
-      - name: upload plots
+      - name: Copy results from container
+        run: docker cp $(docker ps -q -l):/app/results/ ./results_volume
+
+      - name: Publish artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: "plots_$(date +%Y-%m-%d_%H-%M)"
-          path: "results/"
+          path: "results_volume/"

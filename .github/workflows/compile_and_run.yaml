@@ -19,7 +19,7 @@ jobs:
           cache: 'pip' # caching pip dependencies
 
       - name: install python requirements
-        run: pip install -r requirements.txt
+        run: pip install -r app/requirements.txt
 
       - uses: docker/login-action@v3
         with:

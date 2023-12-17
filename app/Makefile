@@ -53,11 +53,17 @@ compile_all: compile_sequential compile_openmp compile_mpi compile_hybrid
 run_sequential: compile_sequential
 	./$(APP_NAME_SEQUENTIAL) Sequential_Test
 
+run_sequential_valgrind: compile_sequential
+	valgrind --leak-check=full ./$(APP_NAME_SEQUENTIAL) Sequential_Test
+
 run_openmp: compile_openmp
 	./$(APP_NAME_OPENMP) OpenMP_Test
 
 run_mpi: compile_mpi
 	mpirun ./$(APP_NAME_MPI) MPI_Test
+
+run_mpi_valgrind: compile_mpi
+	mpirun valgrind --leak-check=full ./$(APP_NAME_MPI) MPI_Test
 
 run_hybrid: compile_hybrid
 	mpirun ./$(APP_NAME_HYBRID) Hybrid_Test
@@ -67,7 +73,6 @@ run_all: compile_all
     ./$(APP_NAME_OPENMP) OpenMP_Test 2>/dev/null; \
     mpirun ./$(APP_NAME_MPI) MPI_Test 2>/dev/null; \
     mpirun -np 2 ./$(APP_NAME_HYBRID) Hybrid_Test 2>/dev/null # -np 2 because we take half of the cores
-
 
 run_and_make_plots:
 	($(MAKE) run_all 2>/dev/null) | python3 makePlot.py

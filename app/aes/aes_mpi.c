@@ -177,7 +177,6 @@ void aesEncryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKe
 }
 
 void aesDecryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKeys) {
-
     uint8_t state[4 * AES_NUM_OF_COLUMNS];
 
     for (uint8_t i = 0; i < 4; i++) {
@@ -208,8 +207,16 @@ void aesDecryptBlock(uint8_t *inputBlock, uint8_t *outputBlock, uint8_t *roundKe
 
 void aesSequentialEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey) {
     size_t numBlocks = (blocks + BLOCK_SIZE - 1) / BLOCK_SIZE;
-    Block msg[numBlocks];
-    CipherBlock e_msg[numBlocks];
+
+    Block *msg = malloc(numBlocks * sizeof(Block));
+    CipherBlock *e_msg = malloc(numBlocks * sizeof(CipherBlock));
+
+    if (msg == NULL || e_msg == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        free(msg);
+        free(e_msg);
+        return;
+    }
 
     uint8_t paddingSize = BLOCK_SIZE - (blocks % BLOCK_SIZE);
     paddingSize = (paddingSize == 0) ? BLOCK_SIZE : paddingSize;
@@ -230,11 +237,20 @@ void aesSequentialEncrypt(uint8_t *original_block, size_t blocks, uint8_t *outpu
             outputBlock[(i * BLOCK_SIZE) + j] = e_msg[i].data[j];
         }
     }
+
+    free(msg);
+    free(e_msg);
 }
 
 void aesSequentialDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outputBlock, uint8_t *expandedKey) {
     size_t numBlocks = (blocks + BLOCK_SIZE - 1) / BLOCK_SIZE;
-    CipherBlock d_msg[numBlocks];
+    CipherBlock *d_msg = malloc(numBlocks * sizeof(CipherBlock));
+
+    if(d_msg == NULL) {
+        printf("Error allocating memory for d_msg\n");
+        free(d_msg);
+        exit(1);
+    }
 
     for (size_t i = 0; i < numBlocks; i++) {
         aesDecryptBlock(&encrypted_block[i * BLOCK_SIZE], d_msg[i].data, expandedKey);
@@ -251,6 +267,8 @@ void aesSequentialDecrypt(uint8_t *encrypted_block, size_t blocks, uint8_t *outp
             }
         }
     }
+
+    free(d_msg);
 }
 
 void initialize_sendcoutns_and_displs(size_t blocks, int size, int **sendcountsPtr, int **displsPtr) {

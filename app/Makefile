@@ -4,6 +4,12 @@ APP_NAME_OPENMP = $(APP_NAME)_openmp
 APP_NAME_MPI = $(APP_NAME)_mpi
 APP_NAME_HYBRID = $(APP_NAME)_hybrid
 
+PYTHON_ENV = ./venv/bin
+
+prepare_python:
+	(python3 -m venv venv && chmod +x $(PYTHON_ENV)/activate && $(PYTHON_ENV)/activate && $(PYTHON_ENV)/pip3 install -r requirements.txt) > /dev/null 2>&1
+
+
 CCOMP = gcc
 MPICOMP = mpicc
 LOADER = gcc
@@ -74,11 +80,11 @@ run_all: compile_all
     mpirun ./$(APP_NAME_MPI) MPI_Test 2>/dev/null || true; \
     mpirun -np 2 ./$(APP_NAME_HYBRID) Hybrid_Test 2>/dev/null || true; # -np 2 because we take half of the cores
 
-run_and_make_plots:
+run_and_make_plots: prepare_python
 	(for i in 1 .. 3; do \
    		$(MAKE) run_all 2>/dev/null; \
    		sleep 1; \
-   	done;) | python3 makePlot.py
+   	done;) | $(PYTHON_ENV)/python3 makePlot.py && ls results/
 
 # CLEAN
 clean:

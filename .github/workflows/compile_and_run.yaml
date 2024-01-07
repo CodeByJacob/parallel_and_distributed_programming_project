@@ -26,7 +26,7 @@ jobs:
       - name: Copy results from container
         run: docker cp $(docker ps -q -l):/app/results/ ./results_volume
 
-      - name: [TEST] print logs
+      - name: TEST print logs
         run: cat ./results_volume/logs.txt
 
       - name: Publish artifacts

@@ -3,41 +3,42 @@ import re
 from statistics import mean
 
 log_data = """
-TestCategory:Sequential_Test|TestName:KeyExpansion|Size:1391|ClockTime:0.000010
-TestCategory:Sequential_Test|TestName:Encrypt|Size:1391|ClockTime:0.012527
-TestCategory:Sequential_Test|TestName:Decrypt|Size:1391|ClockTime:0.014403
-TestCategory:OpenMP_Test-2|TestName:KeyExpansion|Size:1391|ClockTime:0.000017
-TestCategory:OpenMP_Test-2|TestName:Encrypt|Size:1391|ClockTime:0.007236
-TestCategory:OpenMP_Test-2|TestName:Decrypt|Size:1391|ClockTime:0.007864
-TestCategory:OpenMP_Test-3|TestName:KeyExpansion|Size:1391|ClockTime:0.000016
-TestCategory:OpenMP_Test-3|TestName:Encrypt|Size:1391|ClockTime:0.004737
-TestCategory:OpenMP_Test-3|TestName:Decrypt|Size:1391|ClockTime:0.005524
-TestCategory:OpenMP_Test-4|TestName:KeyExpansion|Size:1391|ClockTime:0.000015
-TestCategory:OpenMP_Test-4|TestName:Encrypt|Size:1391|ClockTime:0.003686
-TestCategory:OpenMP_Test-4|TestName:Decrypt|Size:1391|ClockTime:0.003927
-TestCategory:Sequential_Test|TestName:KeyExpansion|Size:1391|ClockTime:0.000010
-TestCategory:Sequential_Test|TestName:Encrypt|Size:1391|ClockTime:0.012460
-TestCategory:Sequential_Test|TestName:Decrypt|Size:1391|ClockTime:0.014248
-TestCategory:OpenMP_Test-2|TestName:KeyExpansion|Size:1391|ClockTime:0.000015
-TestCategory:OpenMP_Test-2|TestName:Encrypt|Size:1391|ClockTime:0.007141
-TestCategory:OpenMP_Test-2|TestName:Decrypt|Size:1391|ClockTime:0.007881
-TestCategory:OpenMP_Test-3|TestName:KeyExpansion|Size:1391|ClockTime:0.000014
-TestCategory:OpenMP_Test-3|TestName:Encrypt|Size:1391|ClockTime:0.004747
-TestCategory:OpenMP_Test-3|TestName:Decrypt|Size:1391|ClockTime:0.005181
-TestCategory:OpenMP_Test-4|TestName:KeyExpansion|Size:1391|ClockTime:0.000012
-TestCategory:OpenMP_Test-4|TestName:Encrypt|Size:1391|ClockTime:0.003598
-TestCategory:OpenMP_Test-4|TestName:Decrypt|Size:1391|ClockTime:0.003922
+TestCategory:Sequential_Test|TestName:KeyExpansion|Size:1391|ClockTime:0.000012
+TestCategory:Sequential_Test|TestName:Encrypt|Size:1391|ClockTime:0.012463
+TestCategory:Sequential_Test|TestName:Decrypt|Size:1391|ClockTime:0.014362
+TestCategory:MPI_Test-2|TestName:KeyExpansion|Size:1391|ClockTime:0.000074
+TestCategory:MPI_Test-2|TestName:Encrypt|Size:1391|ClockTime:0.007387
+TestCategory:MPI_Test-2|TestName:Decrypt|Size:1391|ClockTime:0.007964
+TestCategory:MPI_Test-3|TestName:KeyExpansion|Size:1391|ClockTime:0.004411
+TestCategory:MPI_Test-3|TestName:Encrypt|Size:1391|ClockTime:0.005212
+TestCategory:MPI_Test-3|TestName:Decrypt|Size:1391|ClockTime:0.006780
+TestCategory:MPI_Test-4|TestName:KeyExpansion|Size:1391|ClockTime:0.003351
+TestCategory:MPI_Test-4|TestName:Encrypt|Size:1391|ClockTime:0.010694
+TestCategory:MPI_Test-4|TestName:Decrypt|Size:1391|ClockTime:0.008242
 TestCategory:Sequential_Test|TestName:KeyExpansion|Size:1391|ClockTime:0.000009
-TestCategory:Sequential_Test|TestName:Encrypt|Size:1391|ClockTime:0.012389
-TestCategory:Sequential_Test|TestName:Decrypt|Size:1391|ClockTime:0.014215
-TestCategory:OpenMP_Test-2|TestName:KeyExpansion|Size:1391|ClockTime:0.000015
-TestCategory:OpenMP_Test-2|TestName:Encrypt|Size:1391|ClockTime:0.007107
-TestCategory:OpenMP_Test-2|TestName:Decrypt|Size:1391|ClockTime:0.007824
-TestCategory:OpenMP_Test-3|TestName:KeyExpansion|Size:1391|ClockTime:0.000014
-TestCategory:OpenMP_Test-3|TestName:Encrypt|Size:1391|ClockTime:0.004712
-TestCategory:OpenMP_Test-3|TestName:Decrypt|Size:1391|ClockTime:0.005151
-TestCategory:OpenMP_Test-4|TestName:KeyExpansion|Size:1391|ClockTime:0.000015
-TestCategory:OpenMP_Test-4|TestName:Encrypt|Size:1391|ClockTime:0.003853
+TestCategory:Sequential_Test|TestName:Encrypt|Size:1391|ClockTime:0.012480
+TestCategory:Sequential_Test|TestName:Decrypt|Size:1391|ClockTime:0.015584
+TestCategory:MPI_Test-2|TestName:KeyExpansion|Size:1391|ClockTime:0.000017
+TestCategory:MPI_Test-2|TestName:Encrypt|Size:1391|ClockTime:0.007205
+TestCategory:MPI_Test-2|TestName:Decrypt|Size:1391|ClockTime:0.007843
+TestCategory:MPI_Test-3|TestName:KeyExpansion|Size:1391|ClockTime:0.002206
+TestCategory:MPI_Test-3|TestName:Encrypt|Size:1391|ClockTime:0.008061
+TestCategory:MPI_Test-3|TestName:Decrypt|Size:1391|ClockTime:0.008702
+TestCategory:MPI_Test-4|TestName:KeyExpansion|Size:1391|ClockTime:0.002236
+TestCategory:MPI_Test-4|TestName:Encrypt|Size:1391|ClockTime:0.011128
+TestCategory:MPI_Test-4|TestName:Decrypt|Size:1391|ClockTime:0.008325
+TestCategory:Sequential_Test|TestName:KeyExpansion|Size:1391|ClockTime:0.000009
+TestCategory:Sequential_Test|TestName:Encrypt|Size:1391|ClockTime:0.012402
+TestCategory:Sequential_Test|TestName:Decrypt|Size:1391|ClockTime:0.014432
+TestCategory:MPI_Test-2|TestName:KeyExpansion|Size:1391|ClockTime:0.000017
+TestCategory:MPI_Test-2|TestName:Encrypt|Size:1391|ClockTime:0.007279
+TestCategory:MPI_Test-2|TestName:Decrypt|Size:1391|ClockTime:0.008231
+TestCategory:MPI_Test-3|TestName:KeyExpansion|Size:1391|ClockTime:0.004276
+TestCategory:MPI_Test-3|TestName:Encrypt|Size:1391|ClockTime:0.018739
+TestCategory:MPI_Test-3|TestName:Decrypt|Size:1391|ClockTime:0.019039
+TestCategory:MPI_Test-4|TestName:KeyExpansion|Size:1391|ClockTime:0.003367
+TestCategory:MPI_Test-4|TestName:Encrypt|Size:1391|ClockTime:0.018285
+TestCategory:MPI_Test-4|TestName:Decrypt|Size:1391|ClockTime:0.009911
 """
 
 sequential_times = {'Encrypt': 0, 'Decrypt': 0}
@@ -92,10 +93,10 @@ ax.plot(threads_decrypt, speedup_decrypt, marker='o', label='Decrypt')
 # Adding labels and title
 ax.set_xlabel('Number of Threads')
 ax.set_ylabel('Speedup')
-ax.set_title('OpenMP Speedup of Encrypt and Decrypt for test size 1391')
+ax.set_title('MPI Speedup of Encrypt and Decrypt for test size 1391')
 ax.legend()
 
-plt.savefig('results/openmp_speedup_plot.png', dpi=300)
+plt.savefig('results/mpi_speedup_plot.png', dpi=300)
 
 # Show the plot
 # plt.show()

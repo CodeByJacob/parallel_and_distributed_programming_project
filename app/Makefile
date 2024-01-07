@@ -81,7 +81,7 @@ run_all: compile_all
     done;)
 
 run_and_make_plots: prepare_python
-	(for i in 1 .. 3; do \
+	(for i in 1 2 3; do \
    		$(MAKE) run_all 2>/dev/null || true; \
    		sleep 1; \
    	done;) | $(PYTHON_ENV)/python3 makePlot.py && ls results/

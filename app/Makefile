@@ -90,7 +90,7 @@ run_and_make_plots: prepare_python
 run_hybrid_for_all_processes_and_threads: compile_sequential compile_hybrid
 	./$(APP_NAME_SEQUENTIAL) Sequential_Test 2>/dev/null; \
 	for i in 2; do \
-   		for j in 2 3 4; do \
+   		for j in 2 3; do \
    			export OMP_NUM_THREADS=$$j; \
    			mpirun -np $$i ./$(APP_NAME_HYBRID) Hybrid_Test-$$i-$$j 2>/dev/null || true; \
    			sleep 1; \

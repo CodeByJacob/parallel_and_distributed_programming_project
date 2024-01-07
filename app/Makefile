@@ -76,12 +76,12 @@ run_all: compile_all
     ./$(APP_NAME_OPENMP) OpenMP_Test 2>/dev/null; \
     mpirun ./$(APP_NAME_MPI) MPI_Test 2>/dev/null || true; \
     (for i in 2 3 4; do \
-      mpirun -np $$i ./$(APP_NAME_HYBRID) Hybrid_Test-$$i 2>/dev/null || true; \
+      mpirun -np $$i ./$(APP_NAME_HYBRID) Hybrid_Test-$$i \
     done;)
 
 run_and_make_plots: prepare_python
 	(for i in 1 2 3; do \
-   		$(MAKE) run_all 2>/dev/null; \
+   		$(MAKE) run_all \
    		sleep 1; \
    	done;) | $(PYTHON_ENV)/python3 makePlot.py && ls results/
 

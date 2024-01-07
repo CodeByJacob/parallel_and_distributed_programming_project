@@ -15,6 +15,29 @@ TestCategory:OpenMP_Test-3|TestName:Decrypt|Size:1391|ClockTime:0.005524
 TestCategory:OpenMP_Test-4|TestName:KeyExpansion|Size:1391|ClockTime:0.000015
 TestCategory:OpenMP_Test-4|TestName:Encrypt|Size:1391|ClockTime:0.003686
 TestCategory:OpenMP_Test-4|TestName:Decrypt|Size:1391|ClockTime:0.003927
+TestCategory:Sequential_Test|TestName:KeyExpansion|Size:1391|ClockTime:0.000010
+TestCategory:Sequential_Test|TestName:Encrypt|Size:1391|ClockTime:0.012460
+TestCategory:Sequential_Test|TestName:Decrypt|Size:1391|ClockTime:0.014248
+TestCategory:OpenMP_Test-2|TestName:KeyExpansion|Size:1391|ClockTime:0.000015
+TestCategory:OpenMP_Test-2|TestName:Encrypt|Size:1391|ClockTime:0.007141
+TestCategory:OpenMP_Test-2|TestName:Decrypt|Size:1391|ClockTime:0.007881
+TestCategory:OpenMP_Test-3|TestName:KeyExpansion|Size:1391|ClockTime:0.000014
+TestCategory:OpenMP_Test-3|TestName:Encrypt|Size:1391|ClockTime:0.004747
+TestCategory:OpenMP_Test-3|TestName:Decrypt|Size:1391|ClockTime:0.005181
+TestCategory:OpenMP_Test-4|TestName:KeyExpansion|Size:1391|ClockTime:0.000012
+TestCategory:OpenMP_Test-4|TestName:Encrypt|Size:1391|ClockTime:0.003598
+TestCategory:OpenMP_Test-4|TestName:Decrypt|Size:1391|ClockTime:0.003922
+TestCategory:Sequential_Test|TestName:KeyExpansion|Size:1391|ClockTime:0.000009
+TestCategory:Sequential_Test|TestName:Encrypt|Size:1391|ClockTime:0.012389
+TestCategory:Sequential_Test|TestName:Decrypt|Size:1391|ClockTime:0.014215
+TestCategory:OpenMP_Test-2|TestName:KeyExpansion|Size:1391|ClockTime:0.000015
+TestCategory:OpenMP_Test-2|TestName:Encrypt|Size:1391|ClockTime:0.007107
+TestCategory:OpenMP_Test-2|TestName:Decrypt|Size:1391|ClockTime:0.007824
+TestCategory:OpenMP_Test-3|TestName:KeyExpansion|Size:1391|ClockTime:0.000014
+TestCategory:OpenMP_Test-3|TestName:Encrypt|Size:1391|ClockTime:0.004712
+TestCategory:OpenMP_Test-3|TestName:Decrypt|Size:1391|ClockTime:0.005151
+TestCategory:OpenMP_Test-4|TestName:KeyExpansion|Size:1391|ClockTime:0.000015
+TestCategory:OpenMP_Test-4|TestName:Encrypt|Size:1391|ClockTime:0.003853
 """
 
 sequential_times = {'Encrypt': 0, 'Decrypt': 0}
@@ -32,8 +55,6 @@ for line in log_data.split('\n'):
         test_category, num_threads, test_type, time = match.groups()
         time = float(time)
 
-        print(test_category, num_threads, test_type, time)
-
         if 'Sequential' in test_category:
             # Only set the time once as the sequential time doesn't change with number of threads
             if sequential_times[test_type] == 0:
@@ -50,7 +71,7 @@ for num_threads in parallel_times:
     for test_type in parallel_times[num_threads]:
         if parallel_times[num_threads][test_type]:
             avg_parallel_time = mean(parallel_times[num_threads][test_type])
-            speedup = sequential_times[test_type] / avg_parallel_time
+            speedup = (sequential_times[test_type] / avg_parallel_time) * 100
             speedups[test_type].append((num_threads, speedup))
 
 # Sort the speedup data by number of threads
@@ -70,9 +91,11 @@ ax.plot(threads_decrypt, speedup_decrypt, marker='o', label='Decrypt')
 
 # Adding labels and title
 ax.set_xlabel('Number of Threads')
-ax.set_ylabel('Speedup')
-ax.set_title('Speedup of Encrypt and Decrypt with Different Number of Threads')
+ax.set_ylabel('Speedup [%]')
+ax.set_title('OpenMP Speedup of Encrypt and Decrypt for test size 1391')
 ax.legend()
 
+plt.savefig('results/openmp_speedup_plot.png', dpi=300)
+
 # Show the plot
-plt.show()
+# plt.show()

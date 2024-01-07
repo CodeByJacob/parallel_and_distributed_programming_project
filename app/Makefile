@@ -78,7 +78,10 @@ run_all: compile_all
 	./$(APP_NAME_SEQUENTIAL) Sequential_Test 2>/dev/null; \
     ./$(APP_NAME_OPENMP) OpenMP_Test 2>/dev/null; \
     mpirun ./$(APP_NAME_MPI) MPI_Test 2>/dev/null || true; \
-    mpirun -np 2 ./$(APP_NAME_HYBRID) Hybrid_Test 2>/dev/null || true; # -np 2 because we take half of the cores
+    (for i in 1 .. 4; do \
+    	mpirun -np $$i ./$(APP_NAME_HYBRID) Hybrid_Test-$$i 2>/dev/null || true; \
+    done;)
+
 
 run_and_make_plots: prepare_python
 	(for i in 1 .. 3; do \

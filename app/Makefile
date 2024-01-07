@@ -75,13 +75,21 @@ run_all: compile_all
 	./$(APP_NAME_SEQUENTIAL) Sequential_Test 2>/dev/null; \
     ./$(APP_NAME_OPENMP) OpenMP_Test 2>/dev/null; \
     mpirun ./$(APP_NAME_MPI) MPI_Test 2>/dev/null || true; \
+    mpirun -np 2 ./$(APP_NAME_HYBRID) Hybrid_Test 2>/dev/null || true;
+
+
+run_all_for_all_processes: compile_all
+	./$(APP_NAME_SEQUENTIAL) Sequential_Test 2>/dev/null; \
+    ./$(APP_NAME_OPENMP) OpenMP_Test 2>/dev/null; \
     (for i in 2 3 4; do \
-      mpirun -np $$i ./$(APP_NAME_HYBRID) Hybrid_Test-$$i; \
-    done;)
+    	mpirun -np $$i ./$(APP_NAME_MPI) MPI_Test-$$i 2>/dev/null || true; \
+    done;) \
+    mpirun -np 2 ./$(APP_NAME_HYBRID) Hybrid_Test 2>/dev/null || true;
+
 
 run_and_make_plots: prepare_python
 	(for i in 1 2 3; do \
-   		$(MAKE) run_all \
+   		$(MAKE) run_all 2>/dev/null; \
    		sleep 1; \
    	done;) | $(PYTHON_ENV)/python3 makePlot.py && ls results/
 

@@ -52,9 +52,7 @@ void test_aes(char *test_category, uint8_t *original_block, size_t blocks, uint8
 
     uint8_t *expandedKey = initializeAES();
 
-    TimerData keyExpansion_td = init_time(test_category, "KeyExpansion", blocks);
     keyExpansion(key, expandedKey);
-    printTime(&keyExpansion_td);
 
     TimerData encrypt_td = init_time(test_category, "Encrypt",blocks);
     aesEncrypt(original_block, blocks, encrypted_block, expandedKey);

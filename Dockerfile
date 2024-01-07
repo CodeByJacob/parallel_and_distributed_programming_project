@@ -13,4 +13,4 @@ COPY ./app ./app
 WORKDIR ./app
 
 RUN ["make","-f","Makefile"]
-#ENTRYPOINT ["make", "run_and_make_plots"]
+ENTRYPOINT ["make", "run_and_make_plots"]

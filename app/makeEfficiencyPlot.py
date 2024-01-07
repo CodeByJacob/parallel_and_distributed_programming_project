@@ -65,37 +65,38 @@ for line in log_data.split('\n'):
             parallel_times[num_threads][test_type].append(time)
 
 # Calculate average times for parallel tests and speedup for each thread count
-speedups = {'Encrypt': [], 'Decrypt': []}
+efficiencies = {'Encrypt': [], 'Decrypt': []}
 
 for num_threads in parallel_times:
     for test_type in parallel_times[num_threads]:
         if parallel_times[num_threads][test_type]:
             avg_parallel_time = mean(parallel_times[num_threads][test_type])
-            speedup = (sequential_times[test_type] / avg_parallel_time)
-            speedups[test_type].append((num_threads, speedup))
+            speedup = (sequential_times[test_type] / avg_parallel_time) * 100
+            efficiency = speedup / num_threads
+            efficiencies[test_type].append((num_threads, efficiency))
 
 # Sort the speedup data by number of threads
 
-speedups['Encrypt'].sort()
-speedups['Decrypt'].sort()
+efficiencies['Encrypt'].sort()
+efficiencies['Decrypt'].sort()
 
 # Plotting the speedup for Encrypt and Decrypt
 fig, ax = plt.subplots()
 
 # Extract number of threads and corresponding speedup for plotting
-threads_encrypt, speedup_encrypt = zip(*speedups['Encrypt'])
-threads_decrypt, speedup_decrypt = zip(*speedups['Decrypt'])
+threads_encrypt, speedup_encrypt = zip(*efficiencies['Encrypt'])
+threads_decrypt, speedup_decrypt = zip(*efficiencies['Decrypt'])
 
 ax.plot(threads_encrypt, speedup_encrypt, marker='o', label='Encrypt')
 ax.plot(threads_decrypt, speedup_decrypt, marker='o', label='Decrypt')
 
 # Adding labels and title
 ax.set_xlabel('Number of Threads')
-ax.set_ylabel('Speedup')
-ax.set_title('OpenMP Speedup of Encrypt and Decrypt for test size 1391')
+ax.set_ylabel('Efficiency [%]')
+ax.set_title('OpenMP Efficiency of Encrypt and Decrypt for test size 1391')
 ax.legend()
 
-plt.savefig('results/openmp_speedup_plot.png', dpi=300)
+plt.savefig('results/openmp_efficiency_plot.png', dpi=300)
 
 # Show the plot
 # plt.show()

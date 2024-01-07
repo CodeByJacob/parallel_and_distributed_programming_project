@@ -98,7 +98,10 @@ run_hybrid_for_all_processes_and_threads: compile_sequential compile_hybrid
    	done;
 
 run_hybrid_speedup_and_efficiency_and_make_plots: compile_sequential compile_hybrid
-	($(MAKE) run_hybrid_for_all_processes_and_threads 2>/dev/null) | $(PYTHON_ENV)/python3 makePlot.py && ls results/
+	(for i in 1 .. 3; do \
+       		$(MAKE) run_hybrid_for_all_processes_and_threads 2>/dev/null; \
+       		sleep 1; \
+       	done;) | $(PYTHON_ENV)/python3 makePlot.py && ls results/
 
 
 run_openmp_for_all_threads: compile_sequential compile_openmp
@@ -110,7 +113,10 @@ run_openmp_for_all_threads: compile_sequential compile_openmp
 	done; \
 
 run_openmp_speedup_and_efficiency_and_make_plots: compile_sequential compile_openmp
-	($(MAKE) run_openmp_for_all_threads 2>/dev/null) | $(PYTHON_ENV)/python3 makePlot.py && ls results/
+	(for i in 1 .. 3; do \
+       		$(MAKE) run_openmp_for_all_threads 2>/dev/null; \
+       		sleep 1; \
+       	done;) | $(PYTHON_ENV)/python3 makePlot.py && ls results/
 
 
 run_mpi_for_all_processes: compile_sequential compile_mpi
@@ -121,7 +127,10 @@ run_mpi_for_all_processes: compile_sequential compile_mpi
    	done;
 
 run_mpi_speedup_and_efficiency_and_make_plots: compile_sequential compile_mpi
-	($(MAKE) run_mpi_for_all_processes 2>/dev/null) | $(PYTHON_ENV)/python3 makePlot.py && ls results/
+	(for i in 1 .. 3; do \
+           		$(MAKE) run_mpi_for_all_processes 2>/dev/null; \
+           		sleep 1; \
+           	done;) | $(PYTHON_ENV)/python3 makePlot.py && ls results/
 
 # CLEAN
 clean:

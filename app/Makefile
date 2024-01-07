@@ -86,6 +86,20 @@ run_and_make_plots: prepare_python
    		sleep 1; \
    	done;) | $(PYTHON_ENV)/python3 makePlot.py && ls results/
 
+
+run_hybrid_for_all_processes_and_threads: compile_sequential compile_hybrid
+	./$(APP_NAME_SEQUENTIAL) Sequential_Test 2>/dev/null; \
+	for i in 2 3 4; do \
+   		for j in 2 3 4; do \
+   			export OMP_NUM_THREADS=$$j; \
+   			mpirun -np $$i ./$(APP_NAME_HYBRID) Hybrid_Test-$$i-$$j 2>/dev/null || true; \
+   			sleep 1; \
+   		done; \
+   	done;
+
+run_hybrid_speedup_and_efficiency_and_make_plots: compile_sequential compile_hybrid
+	($(MAKE) run_hybrid_for_all_processes_and_threads 2>/dev/null) | $(PYTHON_ENV)/python3 makePlot.py && ls results/
+
 # CLEAN
 clean:
 	rm -f .o *.a ./lib/*/*.o ./lib/*/*.a $(APP_NAME)*

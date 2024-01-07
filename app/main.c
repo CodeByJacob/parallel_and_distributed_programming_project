@@ -16,7 +16,7 @@ TestCase tests[] = {
 int main(int argc, char *argv[]) {
     initAES(argc, argv);
 
-    if (argc != 2) {
+    if (argc < 2) {
         printf("Bad arguments size. It should be 2, containing test category");
         finalizeAES();
         return 1;

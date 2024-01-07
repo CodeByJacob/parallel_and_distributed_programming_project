@@ -110,14 +110,12 @@ void keyExpansion(uint8_t *originalKey, uint8_t *expandedKey) {
     uint8_t tempWord[4];
     uint8_t length = AES_NUM_OF_COLUMNS * (AES_NUM_OF_ROUNDS + 1);
 
-    #pragma omp parallel for shared(expandedKey)
     for (uint8_t i = 0; i < AES_KEYWORDS; i++) {
         for (uint8_t j = 0; j < 4; j++) {
             expandedKey[4 * i + j] = originalKey[4 * i + j];
         }
     }
 
-    #pragma omp parallel for
     for (uint8_t i = AES_KEYWORDS; i < length; i++) {
         for (uint8_t j = 0; j < 4; j++) {
             tempWord[j] = expandedKey[4 * (i - 1) + j];

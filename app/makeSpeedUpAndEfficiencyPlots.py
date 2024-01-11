@@ -21,7 +21,7 @@ class TestResult:
 
 @dataclass
 class TestData:
-    test_name: str
+    category: str
     number_of_processes: int
     size: int
     times: List[float] = dataclasses.field(default_factory=list)
@@ -29,7 +29,7 @@ class TestData:
 
 @dataclass
 class Data:
-    test_category: str
+    test_name: str
     test_data: List[TestData] = dataclasses.field(default_factory=list)
 
 
@@ -62,7 +62,7 @@ def extract_number_of_processes(test_name: str) -> int:
         return 1  # Default case
 
 
-def clean_test_name(test_name: str) -> str:
+def clean_test_category_name(test_name: str) -> str:
     if 'Sequential_Test' in test_name:
         return 'Sequential'
     elif 'OpenMP_Test' in test_name:
@@ -83,20 +83,21 @@ def extract_data_from_logs(logs) -> List[Data]:
 
         clock_time_ms = float(clock_time) * 1000
 
-        test_name = clean_test_name(test_name)
-        number_of_processes = extract_number_of_processes(test_name)
+        number_of_processes = extract_number_of_processes(test_category)
+        test_category = clean_test_category_name(test_category)
 
-        data_instance = next((d for d in data if d.test_category == test_category), None)
+        data_instance = next((d for d in data if d.test_name == test_name), None)
         if data_instance is None:
-            data_instance = Data(test_category=test_category)
+            data_instance = Data(test_name=test_name)
             data.append(data_instance)
 
         test_data_instance = next(
             (td for td in data_instance.test_data if
-             td.test_name == test_name and td.number_of_processes == number_of_processes and td.size == int(size)),
+             td.category == test_category and td.number_of_processes == number_of_processes and td.size == int(size)),
             None)
         if test_data_instance is None:
-            test_data_instance = TestData(test_name=test_name, size=int(size), number_of_processes=number_of_processes)
+            test_data_instance = TestData(category=test_category, size=int(size),
+                                          number_of_processes=number_of_processes)
             data_instance.test_data.append(test_data_instance)
 
         test_data_instance.times.append(clock_time_ms)
@@ -104,10 +105,14 @@ def extract_data_from_logs(logs) -> List[Data]:
     return data
 
 
-def filter_data(data: List[Data]):
-    data = filter(lambda d: d.test_category in ["Decrypt", "Encrypt"], data)
-    data = [filter(lambda td: td.size == 1391, d) for d in data]
-    return data
+def filter_data(data_list: List[Data], target_size: int = 1391) -> List[Data]:
+    filtered_data = []
+    for data in data_list:
+        if data.test_name in ["Encrypt", "Decrypt"]:
+            filtered_test_data = [test for test in data.test_data if test.size == target_size]
+            if filtered_test_data:
+                filtered_data.append(Data(test_name=data.test_name, test_data=filtered_test_data))
+    return filtered_data
 
 
 def calculate_test_results(data) -> List[TestResult]:
@@ -125,7 +130,7 @@ def calculate_test_results(data) -> List[TestResult]:
 
 
 def main():
-    results_folder = create_results_folder_with_readable_timestamp()
+    # results_folder = create_results_folder_with_readable_timestamp()
 
     logs = [line.strip() for line in sys.stdin if line.startswith("TestCategory:")]
     # save_logs_to_file(logs, results_folder)

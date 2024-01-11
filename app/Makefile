@@ -121,6 +121,10 @@ run_all_speedup_and_efficiency_and_make_plots: compile_sequential compile_openmp
 		   		sleep 1; \
 		   	done;) | $(PYTHON_ENV)/python3 makeSpeedUpAndEfficiencyPlots.py && ls results/
 
+
+test_speed_up_plots: logs.txt
+	cat logs.txt | $(PYTHON_ENV)/python3 makeSpeedUpAndEfficiencyPlots.py && ls results/
+
 # CLEAN
 clean:
 	rm -f .o *.a ./lib/*/*.o ./lib/*/*.a $(APP_NAME)*

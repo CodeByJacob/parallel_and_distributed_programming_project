@@ -93,6 +93,41 @@ run_and_make_plots: prepare_python
    		sleep 1; \
    	done;) | $(PYTHON_ENV)/python3 makePlot.py && ls results/
 
+
+run_hybrid_for_all_processes_and_threads: compile_sequential compile_hybrid
+	for i in 2; do \
+   		for j in 2 3; do \
+   			export OMP_NUM_THREADS=$$j; \
+   			mpirun -np $$i ./$(APP_NAME_HYBRID) Hybrid_Test-$$i-$$j 2>/dev/null || true; \
+   			sleep 1; \
+   		done; \
+   	done;
+
+run_openmp_for_all_threads: compile_sequential compile_openmp
+	for j in 2 3 4; do \
+		export OMP_NUM_THREADS=$$j; \
+		./$(APP_NAME_OPENMP) OpenMP_Test-$$j || true; \
+		sleep 1; \
+	done; \
+
+
+run_mpi_for_all_processes: compile_sequential compile_mpi
+	for i in 2 3 4; do \
+		mpirun -np $$i ./$(APP_NAME_HYBRID) MPI_Test-$$i 2>/dev/null || true; \
+		sleep 1; \
+   	done;
+
+run_all_speedup_and_efficiency_and_make_plots: compile_sequential compile_openmp compile_mpi compile_hybrid
+	(for i in 1 2 3; do \
+		   		./$(APP_NAME_SEQUENTIAL) Sequential_Test 2>/dev/null; \
+		   		$(MAKE) run_openmp_for_all_threads 2>/dev/null; \
+                sleep 1; \
+                $(MAKE) run_mpi_for_all_processes 2>/dev/null; \
+                sleep 1; \
+                $(MAKE) run_hybrid_for_all_processes_and_threads 2>/dev/null; \
+		   		sleep 1; \
+		   	done;) | $(PYTHON_ENV)/python3 makeSpeedUpAndEfficiencyPlots.py && ls results/
+
 # CLEAN
 clean:
 	@rm -f .o *.a ./lib/*/*.o ./lib/*/*.a $(APP_NAME)*

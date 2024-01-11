@@ -17,6 +17,7 @@ def create_results_folder_with_readable_timestamp():
 def save_logs_to_file(logs, results_folder):
     with open(f'{results_folder}/logs.txt', 'w') as log_file:
         for log in logs:
+            print(log)
             log_file.write(log + '\n')
 
 

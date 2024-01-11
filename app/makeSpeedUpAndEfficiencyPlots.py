@@ -121,7 +121,6 @@ def filter_data(data_list: List[Data], target_size: int = 1391) -> List[Data]:
 def generate_test_results(data_list: List[Data]) -> List[TestResult]:
     test_results = []
     for data in data_list:
-        # Find the sequential TestData for reference
         sequential_test_data = next((td for td in data.test_data if td.category == "Sequential"), None)
         if sequential_test_data:
             sequential_avg_time = sequential_test_data.avg_times()
@@ -137,7 +136,6 @@ def generate_test_results(data_list: List[Data]) -> List[TestResult]:
 
 
 def plot_speedup_by_category(results: List[TestResult], test_name: str, results_folder: str):
-    # Organizing data by test_category
     category_data = defaultdict(list)
     for result in results:
         if result.test_name == test_name:
@@ -145,7 +143,6 @@ def plot_speedup_by_category(results: List[TestResult], test_name: str, results_
 
     plt.figure(figsize=(10, 6))
 
-    # Plotting each category
     for category, values in category_data.items():
         values.sort(key=lambda x: x[0])  # Sorting by number of processes
         processes, speedups = zip(*values)
@@ -153,7 +150,6 @@ def plot_speedup_by_category(results: List[TestResult], test_name: str, results_
 
     plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
 
-    # Adding title, labels, and legend
     plt.title(f"Speed-up Plot for {test_name}")
     plt.xlabel("Number of Processes")
     plt.ylabel("Speedup")
@@ -161,7 +157,6 @@ def plot_speedup_by_category(results: List[TestResult], test_name: str, results_
 
     plt.grid(True)
 
-    # Ensure the results folder exists
     os.makedirs(results_folder, exist_ok=True)
     plot_filename = f"Speed_up_plot_{test_name}.png"
     plot_path = os.path.join(results_folder, plot_filename)
@@ -186,7 +181,6 @@ def plot_efficiency_by_category(results: List[TestResult], test_name: str, resul
 
     plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
 
-    # Adding title, labels, and legend
     plt.title(f"Efficiency Plot for {test_name}")
     plt.xlabel("Number of Processes")
     plt.ylabel("Efficiency (%)")
@@ -194,19 +188,18 @@ def plot_efficiency_by_category(results: List[TestResult], test_name: str, resul
 
     plt.grid(True)
 
-    # Ensure the results folder exists
     os.makedirs(results_folder, exist_ok=True)
     plot_filename = f"Efficiency_plot_{test_name}.png"
     plot_path = os.path.join(results_folder, plot_filename)
     plt.savefig(plot_path)
-    plt.close()  # Close the plot to free memory
+    plt.close()
 
 
 def main():
     results_folder = create_results_folder_with_readable_timestamp()
 
     logs = [line.strip() for line in sys.stdin if line.startswith("TestCategory:")]
-    # save_logs_to_file(logs, results_folder)
+    save_logs_to_file(logs, results_folder)
 
     data = extract_data_from_logs(logs)
     data = filter_data(data)

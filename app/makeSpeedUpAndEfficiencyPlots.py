@@ -205,8 +205,6 @@ def main():
     data = filter_data(data)
     test_results = generate_test_results(data)
 
-    print(test_results)
-
     for test_name in ["Encrypt", "Decrypt"]:
         plot_speedup_by_category(test_results, test_name, results_folder)
         plot_efficiency_by_category(test_results, test_name, results_folder)

@@ -54,15 +54,13 @@ def extract_number_of_processes(test_name: str) -> int:
     if 'Sequential_Test' in test_name:
         return 1
     elif 'OpenMP_Test' in test_name or 'MPI_Test' in test_name:
-        # Extract the number after the test name
         parts = test_name.split('-')
         return int(parts[1]) if len(parts) > 1 else 1
     elif 'Hybrid_Test' in test_name:
-        # Multiply the two numbers after the test name
         parts = test_name.split('-')
         return int(parts[1]) * int(parts[2]) if len(parts) > 2 else 1
     else:
-        return 1  # Default case
+        return 1
 
 
 def clean_test_category_name(test_name: str) -> str:
@@ -144,7 +142,7 @@ def plot_speedup_by_category(results: List[TestResult], test_name: str, results_
     plt.figure(figsize=(10, 6))
 
     for category, values in category_data.items():
-        values.sort(key=lambda x: x[0])  # Sorting by number of processes
+        values.sort(key=lambda x: x[0])
         processes, speedups = zip(*values)
         plt.plot(processes, speedups, marker='o', label=category)
 
@@ -161,11 +159,10 @@ def plot_speedup_by_category(results: List[TestResult], test_name: str, results_
     plot_filename = f"Speed_up_plot_{test_name}.png"
     plot_path = os.path.join(results_folder, plot_filename)
     plt.savefig(plot_path)
-    plt.close()  # Close the plot to free memory
+    plt.close()
 
 
 def plot_efficiency_by_category(results: List[TestResult], test_name: str, results_folder: str):
-    # Organizing data by test_category
     category_data = defaultdict(list)
     for result in results:
         if result.test_name == test_name:
@@ -173,9 +170,8 @@ def plot_efficiency_by_category(results: List[TestResult], test_name: str, resul
 
     plt.figure(figsize=(10, 6))
 
-    # Plotting each category
     for category, values in category_data.items():
-        values.sort(key=lambda x: x[0])  # Sorting by number of processes
+        values.sort(key=lambda x: x[0])
         processes, efficiencies = zip(*values)
         plt.plot(processes, efficiencies, marker='o', label=category)
 

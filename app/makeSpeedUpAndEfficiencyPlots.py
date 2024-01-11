@@ -7,9 +7,7 @@ from collections import defaultdict
 from typing import List
 
 import matplotlib.pyplot as plt
-import numpy as np
 from matplotlib.ticker import MaxNLocator
-
 
 
 @dataclass
@@ -171,6 +169,39 @@ def plot_speedup_by_category(results: List[TestResult], test_name: str, results_
     plt.close()  # Close the plot to free memory
 
 
+def plot_efficiency_by_category(results: List[TestResult], test_name: str, results_folder: str):
+    # Organizing data by test_category
+    category_data = defaultdict(list)
+    for result in results:
+        if result.test_name == test_name:
+            category_data[result.test_category].append((result.number_of_processes, result.efficiency))
+
+    plt.figure(figsize=(10, 6))
+
+    # Plotting each category
+    for category, values in category_data.items():
+        values.sort(key=lambda x: x[0])  # Sorting by number of processes
+        processes, efficiencies = zip(*values)
+        plt.plot(processes, efficiencies, marker='o', label=category)
+
+    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+
+    # Adding title, labels, and legend
+    plt.title(f"Efficiency Plot for {test_name}")
+    plt.xlabel("Number of Processes")
+    plt.ylabel("Efficiency (%)")
+    plt.legend()
+
+    plt.grid(True)
+
+    # Ensure the results folder exists
+    os.makedirs(results_folder, exist_ok=True)
+    plot_filename = f"Efficiency_plot_{test_name}.png"
+    plot_path = os.path.join(results_folder, plot_filename)
+    plt.savefig(plot_path)
+    plt.close()  # Close the plot to free memory
+
+
 def main():
     results_folder = create_results_folder_with_readable_timestamp()
 
@@ -182,9 +213,10 @@ def main():
     test_results = generate_test_results(data)
 
     print(test_results)
-    #
+
     for test_name in ["Encrypt", "Decrypt"]:
         plot_speedup_by_category(test_results, test_name, results_folder)
+        plot_efficiency_by_category(test_results, test_name, results_folder)
 
 
 if __name__ == "__main__":

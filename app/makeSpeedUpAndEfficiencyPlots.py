@@ -26,6 +26,9 @@ class TestData:
     size: int
     times: List[float] = dataclasses.field(default_factory=list)
 
+    def avg_times(self):
+        return sum(self.times) / len(self.times)
+
 
 @dataclass
 class Data:
@@ -115,17 +118,21 @@ def filter_data(data_list: List[Data], target_size: int = 1391) -> List[Data]:
     return filtered_data
 
 
-def calculate_test_results(data) -> List[TestResult]:
+def generate_test_results(data_list: List[Data]) -> List[TestResult]:
     test_results = []
-    for test_name, categories in data.items():
-        for category, size in categories.keys():
-            times = categories[(category, size)]
-            if len(times) > 1:
-                raise ValueError(
-                    f"Expected only one time for test {test_name} with category {category} and size {size}")
-            test_results.append(
-                TestResult(test_category=category, test_name=test_name, number_of_processes=size, speedup=0,
-                           efficiency=0))
+    for data in data_list:
+        # Find the sequential TestData for reference
+        sequential_test_data = next((td for td in data.test_data if td.category == "Sequential"), None)
+        if sequential_test_data:
+            sequential_avg_time = sequential_test_data.avg_times()
+
+            for test_data in data.test_data:
+                if test_data.category != "Sequential":
+                    speedup = sequential_avg_time / test_data.avg_times() if test_data.avg_times() else 0
+                    efficiency = (speedup / test_data.number_of_processes) * 100 if test_data.number_of_processes else 0
+                    test_results.append(TestResult(test_category=test_data.category, test_name=data.test_name,
+                                                   number_of_processes=test_data.number_of_processes,
+                                                   speedup=speedup, efficiency=efficiency))
     return test_results
 
 
@@ -137,8 +144,9 @@ def main():
 
     data = extract_data_from_logs(logs)
     data = filter_data(data)
+    test_results = generate_test_results(data)
 
-    print(data)
+    print(test_results)
 
 
 if __name__ == "__main__":

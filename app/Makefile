@@ -111,7 +111,7 @@ run_mpi_for_all_processes: compile_sequential compile_mpi
    	done;
 
 run_all_speedup_and_efficiency_and_make_plots: compile_sequential compile_openmp compile_mpi compile_hybrid
-	(for i in 1 .. 3; do \
+	(for i in 1 2 3; do \
 		   		./$(APP_NAME_SEQUENTIAL) Sequential_Test 2>/dev/null; \
 		   		$(MAKE) run_openmp_for_all_threads 2>/dev/null; \
                 sleep 1; \
@@ -120,10 +120,6 @@ run_all_speedup_and_efficiency_and_make_plots: compile_sequential compile_openmp
                 $(MAKE) run_hybrid_for_all_processes_and_threads 2>/dev/null; \
 		   		sleep 1; \
 		   	done;) | $(PYTHON_ENV)/python3 makeSpeedUpAndEfficiencyPlots.py && ls results/
-
-
-test_speed_up_plots: logs.txt
-	cat logs.txt | $(PYTHON_ENV)/python3 makeSpeedUpAndEfficiencyPlots.py && ls results/
 
 # CLEAN
 clean:

@@ -8,6 +8,8 @@ from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import MaxNLocator
+
 
 
 @dataclass
@@ -136,8 +138,41 @@ def generate_test_results(data_list: List[Data]) -> List[TestResult]:
     return test_results
 
 
+def plot_speedup_by_category(results: List[TestResult], test_name: str, results_folder: str):
+    # Organizing data by test_category
+    category_data = defaultdict(list)
+    for result in results:
+        if result.test_name == test_name:
+            category_data[result.test_category].append((result.number_of_processes, result.speedup))
+
+    plt.figure(figsize=(10, 6))
+
+    # Plotting each category
+    for category, values in category_data.items():
+        values.sort(key=lambda x: x[0])  # Sorting by number of processes
+        processes, speedups = zip(*values)
+        plt.plot(processes, speedups, marker='o', label=category)
+
+    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+
+    # Adding title, labels, and legend
+    plt.title(f"Speed-up Plot for {test_name}")
+    plt.xlabel("Number of Processes")
+    plt.ylabel("Speedup")
+    plt.legend()
+
+    plt.grid(True)
+
+    # Ensure the results folder exists
+    os.makedirs(results_folder, exist_ok=True)
+    plot_filename = f"Speed_up_plot_{test_name}.png"
+    plot_path = os.path.join(results_folder, plot_filename)
+    plt.savefig(plot_path)
+    plt.close()  # Close the plot to free memory
+
+
 def main():
-    # results_folder = create_results_folder_with_readable_timestamp()
+    results_folder = create_results_folder_with_readable_timestamp()
 
     logs = [line.strip() for line in sys.stdin if line.startswith("TestCategory:")]
     # save_logs_to_file(logs, results_folder)
@@ -147,6 +182,9 @@ def main():
     test_results = generate_test_results(data)
 
     print(test_results)
+    #
+    for test_name in ["Encrypt", "Decrypt"]:
+        plot_speedup_by_category(test_results, test_name, results_folder)
 
 
 if __name__ == "__main__":
